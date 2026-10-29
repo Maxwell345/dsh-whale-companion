@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "articulation": "overlap",
+  "maxAngles": {
+    "arm": 0.02,
+    "hair": 0.002,
+    "ear": 0.02,
+    "tail": 0.045,
+    "head": 0.015
+  },
+  "renderer": "canvas2d-sprite",
+  "width": 1052,
+  "height": 1494,
+  "bounds": [
+    20,
+    24,
+    1025,
+    1439
+  ],
+  "layers": [
+    {
+      "id": "joint-fill",
+      "src": "layers/joint-fill.png",
+      "x": 0,
+      "y": 0,
+      "width": 1052,
+      "height": 1494,
+      "pivot": [
+        526,
+        747
+      ],
+      "z": -1
+    },
+    {
+      "id": "hair-back",
+      "src": "layers/hair-back.png",
+      "x": 0,
+      "y": 49,
+      "width": 1041,
+      "height": 1415,
+      "pivot": [
+        525,
+        645
+      ],
+      "z": 0
+    },
+    {
+      "id": "tail",
+      "src": "layers/tail.png",
+      "x": 814,
+      "y": 1063,
+      "width": 238,
+      "height": 183,
+      "pivot": [
+        815,
+        1180
+      ],
+      "z": 1
+    },
+    {
+      "id": "legs",
+      "src": "layers/legs.png",
+      "x": 348,
+      "y": 1249,
+      "width": 343,
+      "height": 216,
+      "pivot": [
+        521,
+        1255
+      ],
+      "z": 2
+    },
+    {
+      "id": "body",
+      "src": "layers/body.png",
+      "x": 190,
+      "y": 731,
+      "width": 662,
+      "height": 532,
+      "pivot": [
+        522,
+        1060
+      ],
+      "z": 3
+    },
+    {
+      "id": "arm-l",
+      "src": "layers/arm-l.png",
+      "x": 159,
+      "y": 850,
+      "width": 237,
+      "height": 225,
+      "pivot": [
+        371,
+        840
+      ],
+      "z": 4
+    },
+    {
+      "id": "arm-r",
+      "src": "layers/arm-r.png",
+      "x": 665,
+      "y": 861,
+      "width": 229,
+      "height": 217,
+      "pivot": [
+        674,
+        840
+      ],
+      "z": 5
+    },
+    {
+      "id": "ear-l",
+      "src": "layers/ear-l.png",
+      "x": 91,
+      "y": 335,
+      "width": 137,
+      "height": 165,
+      "pivot": [
+        196,
+        556
+      ],
+      "z": 6
+    },
+    {
+      "id": "ear-r",
+      "src": "layers/ear-r.png",
+      "x": 805,
+      "y": 335,
+      "width": 164,
+      "height": 168,
+      "pivot": [
+        808,
+        557
+      ],
+      "z": 6
+    },
+    {
+      "id": "hair-front",
+      "src": "layers/hair-front.png",
+      "x": 203,
+      "y": 338,
+      "width": 647,
+      "height": 533,
+      "pivot": [
+        526,
+        472
+      ],
+      "z": 7
+    },
+    {
+      "id": "accessory",
+      "src": "layers/accessory.png",
+      "x": 128,
+      "y": 168,
+      "width": 795,
+      "height": 516,
+      "pivot": [
+        526,
+        472
+      ],
+      "z": 8
+    },
+    {
+      "id": "ahoge",
+      "src": "layers/ahoge.png",
+      "x": 395,
+      "y": 22,
+      "width": 259,
+      "height": 146,
+      "pivot": [
+        526,
+        144
+      ],
+      "z": 9
+    },
+    {
+      "id": "face",
+      "src": "layers/face.png",
+      "x": 326,
+      "y": 458,
+      "width": 390,
+      "height": 280,
+      "pivot": [
+        524,
+        731
+      ],
+      "z": 10
+    },
+    {
+      "id": "eye-l",
+      "src": "layers/eye-l.png",
+      "x": 326,
+      "y": 532,
+      "width": 157,
+      "height": 148,
+      "pivot": [
+        377,
+        580
+      ],
+      "z": 11
+    },
+    {
+      "id": "eye-r",
+      "src": "layers/eye-r.png",
+      "x": 561,
+      "y": 530,
+      "width": 155,
+      "height": 150,
+      "pivot": [
+        633,
+        580
+      ],
+      "z": 12
+    },
+    {
+      "id": "mouth",
+      "src": "layers/mouth.png",
+      "x": 497,
+      "y": 671,
+      "width": 44,
+      "height": 26,
+      "pivot": [
+        497,
+        671
+      ],
+      "z": 13
+    }
+  ],
+  "face": {
+    "eyeL": [
+      322,
+      532,
+      161,
+      148
+    ],
+    "eyeR": [
+      561,
+      530,
+      167,
+      150
+    ],
+    "mouth": [
+      497,
+      671,
+      44,
+      26
+    ],
+    "cheekL": [
+      397,
+      689,
+      43,
+      18
+    ],
+    "cheekR": [
+      652,
+      690,
+      43,
+      18
+    ],
+    "skin": "#fff1e2",
+    "pivot": [
+      524,
+      731
+    ]
+  }
+}

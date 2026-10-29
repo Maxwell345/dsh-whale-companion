@@ -1,0 +1,7 @@
+# dsh-whale-companion —— DSH bundle patch
+#
+# 安装：把本目录 link 到 profile 的 node_modules，或使用插件管理器安装本目录。
+# 安装后重启 DSH（宿主半需要重启才会加载）。
+- insert:
+    - id: dsh-whale-companion
+      name: dsh-whale-companion

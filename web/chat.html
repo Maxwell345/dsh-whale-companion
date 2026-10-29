@@ -1,0 +1,52 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whale Chat</title>
+  <link rel="stylesheet" href="/dsh-whale/static/ui.css">
+  <link rel="stylesheet" href="/dsh-whale/static/ui/chat.css?v=20261029l">
+</head>
+<body class="chat-body">
+  <div class="chat-app">
+    <header class="chat-head">
+      <img class="chat-avatar" src="/dsh-whale/static/pet/assets/maid.png" alt="" onerror="this.style.visibility='hidden'">
+      <div class="chat-id">
+        <div class="chat-name">小肥鱼 <span class="chat-badge" id="awakeBadge">…</span></div>
+        <div class="chat-sub" id="chatSub">正在连接…</div>
+      </div>
+      <div class="chat-actions">
+        <button class="icon-btn" id="btnCloseChat" title="折叠（写单轮总结并清空这次对话）">⌄</button>
+      </div>
+    </header>
+
+    <main class="chat-log" id="chatLog">
+      <div class="chat-empty" id="chatEmpty">
+        <div class="empty-emoji">🐋</div>
+        <p>和她说点什么吧。</p>
+        <p class="muted">这里和 DSH 聊天框、QQ 都是分开的。关掉窗口时，这一轮会被写成「单轮对话总结日记」。</p>
+      </div>
+    </main>
+
+    <div class="typing" id="typing" hidden><i></i><i></i><i></i><span>小肥鱼正在想…</span></div>
+
+    <footer class="composer">
+      <textarea id="input" rows="1" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
+      <button class="send-btn" id="btnSend">发送</button>
+    </footer>
+  </div>
+
+  <script src="/dsh-whale/static/ui.js"></script>
+  <script src="/dsh-whale/static/ui/chat.js?v=20261029l"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

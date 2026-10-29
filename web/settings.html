@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小肥鱼 · 设置</title>
+  <link rel="stylesheet" href="/dsh-whale/static/ui.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="/dsh-whale/static/pet/assets/maid.png" alt="" onerror="this.style.display='none'">
+      <div>
+        <h1>小肥鱼</h1>
+        <p>电子宠物 / 虚拟伴侣 · 桌宠、QQ 与日记式记忆</p>
+      </div>
+    </div>
+    <div class="grow"></div>
+    <div class="pills" id="pills"></div>
+    <div class="actions">
+      <button class="btn" id="btnWake">唤醒</button>
+      <button class="btn" id="btnSleep">哄睡</button>
+      <button class="btn primary" id="btnSave">保存全部</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">总览</button>
+    <button class="tab" data-tab="persona">人格</button>
+    <button class="tab" data-tab="qq">QQ</button>
+    <button class="tab" data-tab="pet">桌宠</button>
+    <button class="tab" data-tab="schedule">作息</button>
+    <button class="tab" data-tab="memory">记忆</button>
+    <button class="tab" data-tab="free">自由活动</button>
+    <button class="tab" data-tab="advanced">高级</button>
+  </nav>
+
+  <main>
+    <!-- 总览 -->
+    <section class="section active" data-section="overview">
+      <div class="grid">
+        <div class="card">
+          <h2>她现在</h2>
+          <div id="overviewState" class="list" style="margin-top:10px"></div>
+        </div>
+        <div class="card">
+          <h2>快捷操作</h2>
+          <div class="inline" style="margin-top:10px">
+            <button class="btn" id="btnOpenPet">打开桌宠</button>
+            <button class="btn" id="btnOpenChat">打开聊天窗</button>
+            <button class="btn" id="btnRunActivity">让她自己玩</button>
+          </div>
+          <div class="inline" style="margin-top:8px">
+            <button class="btn ghost" id="btnFinalizeDay">整理今天</button>
+            <button class="btn ghost" id="btnOpenMemory">打开记忆目录</button>
+            <button class="btn ghost" id="btnOpenBooks">打开书目录</button>
+          </div>
+          <p class="hint">「让她自己玩」会随机画画 / 写游戏 / 读书 / 欣赏旧作 / 整理作品；也可以到「自由活动」里指定。</p>
+        </div>
+        <div class="card">
+          <h2>这套东西怎么运作</h2>
+          <p class="hint" style="margin-top:8px">
+            桌宠抚摸、桌宠聊天、QQ 私聊、每个 QQ 群，各自有独立的上下文。
+            聊天窗关闭时会把这一轮对话压缩成「单轮对话总结日记」，并更新「重要信息记忆」；
+            睡前再把当天所有单轮总结 + 自由活动日志整理成「全天总结日记」。
+            抚摸互动不做记忆加长，超出窗口就让它过去。
+          </p>
+        </div>
+        <div class="card">
+          <h2>资源</h2>
+          <div class="list" id="pathList" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 人格 -->
+    <section class="section" data-section="persona">
+      <div class="card">
+        <h2>人设人格卡（固定）</h2>
+        <p class="hint">这是她是谁。第一次填写直接保存；之后再改，会连续弹出三次警告。QQ、桌宠、聊天窗共用这一份。</p>
+        <div class="inline" style="margin-top:10px">
+          <span class="pill">当前 <b id="personaBytes">0</b> 字节</span>
+          <span class="pill" id="personaUpdated">尚未保存</span>
+          <span class="pill" id="personaLocked">未锁定</span>
+        </div>
+        <div class="field">
+          <textarea id="personaText" class="input tall" placeholder="第一次请在这里写下她是谁。可以写：身份与来历 / 说话腔调 / 8 岁小女孩的性格 / 爱吃白饭和摸鱼 / 傲娇的内心 OS / 在意什么、怕什么 / 绝对不会做什么。"></textarea>
+        </div>
+        <div class="inline">
+          <button class="btn primary" id="btnSavePersona">保存人设</button>
+          <button class="btn ghost" id="btnPersonaTemplate">载入模板</button>
+          <span class="hint">模板只是起点，存进去之前请按你自己的喜好改。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- QQ -->
+    <section class="section" data-section="qq">
+      <div class="grid">
+        <div class="card">
+          <h2>QQ 连接</h2>
+          <p class="hint">推荐 NapCatQQ，OneBot 11 的 WebSocket 服务。只支持私聊主人、以及最多三个群里 @ 她的消息。</p>
+          <div class="row"><div><div class="label">启用 QQ</div><div class="desc">睡觉时自动断开，醒来重连；醒来前的旧消息不看。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="qq.enabled"><i></i></label></div></div>
+          <div class="field"><label>WebSocket 地址</label><input class="input" data-path="qq.wsUrl" placeholder="ws://127.0.0.1:3001"></div>
+          <div class="field"><label>Access Token（可空）</label><input class="input" type="password" data-path="qq.token" placeholder="没设置就留空；留空保存不会清掉旧 token"></div>
+          <div class="field"><label>小肥鱼的 QQ 号</label><input class="input" data-path="self.qq" inputmode="numeric" placeholder="机器人 QQ"></div>
+          <div class="field"><label>主人 QQ 号（只私聊这个号）</label><input class="input" data-path="owner.qq" inputmode="numeric" placeholder="你的 QQ"></div>
+        </div>
+        <div class="card">
+          <h2>群聊</h2>
+          <p class="hint">最多三个群。只有明确 @ 她的消息才会回；其他消息一律不理。</p>
+          <div class="field"><label>群号 1</label><input class="input" data-path="qq.groups.0" inputmode="numeric"></div>
+          <div class="field"><label>群号 2</label><input class="input" data-path="qq.groups.1" inputmode="numeric"></div>
+          <div class="field"><label>群号 3</label><input class="input" data-path="qq.groups.2" inputmode="numeric"></div>
+          <div class="row"><div><div class="label">群聊回复时 @ 对方</div><div class="desc">关闭后只发文字。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="qq.replyAt"><i></i></label></div></div>
+          <div class="field"><label>单条最长字符</label><input class="input" type="number" data-path="qq.maxReplyChars" min="100" max="4000"></div>
+          <div class="inline" style="margin-top:10px">
+            <button class="btn" id="btnQQConnect">连接 / 重连</button>
+            <button class="btn ghost" id="btnQQDisconnect">断开</button>
+            <span class="pill" id="qqState">未连接</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 桌宠 -->
+    <section class="section" data-section="pet">
+      <div class="grid">
+        <div class="card">
+          <h2>桌宠窗口</h2>
+          <div class="row"><div><div class="label">启用桌宠互动</div><div class="desc">关闭后抚摸不回应，但聊天窗仍可用。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="pet.enabled"><i></i></label></div></div>
+          <div class="row"><div><div class="label">窗口置顶</div><div class="desc">Windows 下用窗口助手实现。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="pet.alwaysOnTop"><i></i></label></div></div>
+          <div class="row"><div><div class="label">透明背景（洋红抠色）</div><div class="desc">若出现洋红边，可关掉，改成圆角小卡片。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="pet.chromaKey"><i></i></label></div></div>
+          <div class="field"><label>缩放</label><input class="input" type="range" data-path="pet.scale" min="0.6" max="1.8" step="0.05"><span class="hint" id="scaleHint">1.00×</span></div>
+          <div class="inline">
+            <button class="btn primary" id="btnOpenPet2">打开桌宠</button>
+            <button class="btn ghost" id="btnClosePet">关闭桌宠</button>
+            <button class="btn" id="btnOpenChat2">打开聊天窗</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>换装</h2>
+          <p class="hint">换装不经过大模型，是纯程序切换。Live2D 模型就绪后会自动用模型；否则用参考图做的立绘。</p>
+          <div class="field"><label>当前服装</label>
+            <select class="input" data-path="pet.outfit">
+              <option value="maid">经典皮肤 · 深蓝白女仆装</option>
+              <option value="knit">针织帽 · 米白毛衣深蓝格裙</option>
+              <option value="winter">冬装 · 鲸鱼帽棉袄</option>
+            </select>
+          </div>
+          <div class="inline">
+            <button class="btn" data-outfit="maid">女仆装</button>
+            <button class="btn" data-outfit="knit">针织</button>
+            <button class="btn" data-outfit="winter">冬装</button>
+          </div>
+          <div class="field"><label>摸完一句话停留（毫秒）</label><input class="input" type="number" data-path="pet.speechMs" min="2000" max="30000" step="500"></div>
+          <div class="field"><label>连续抚摸冷却（毫秒）</label><input class="input" type="number" data-path="pet.touchCooldownMs" min="150" max="3000" step="50"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 作息 -->
+    <section class="section" data-section="schedule">
+      <div class="grid">
+        <div class="card">
+          <h2>生物钟</h2>
+          <div class="row"><div><div class="label">启用作息</div><div class="desc">关闭 = 一直醒着。睡觉时自动关聊天窗、断 QQ、关抚摸、整理当天记忆。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="schedule.enabled"><i></i></label></div></div>
+          <div class="field"><label>醒来时间</label><input class="input" type="time" data-path="schedule.wake"></div>
+          <div class="field"><label>睡觉时间</label><input class="input" type="time" data-path="schedule.sleep"></div>
+          <div class="row"><div><div class="label">自由活动</div><div class="desc">醒来后、不忙的时候自己找事做。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="schedule.freeEnabled"><i></i></label></div></div>
+          <div class="inline">
+            <button class="btn" id="btnWake2">现在唤醒</button>
+            <button class="btn danger" id="btnSleep2">现在睡觉</button>
+          </div>
+          <p class="hint">手动操作会压住生物钟 10 分钟，避免立刻被切回去。</p>
+        </div>
+        <div class="card">
+          <h2>自由活动节奏</h2>
+          <div class="field"><label>两件事之间最少间隔（分钟）</label><input class="input" type="number" data-path="schedule.freeMinGapMin" min="5" max="240"></div>
+          <div class="field"><label>最多间隔（分钟）</label><input class="input" type="number" data-path="schedule.freeMaxGapMin" min="6" max="480"></div>
+          <div class="field"><label>多久没聊天会想你（分钟）</label><input class="input" type="number" data-path="schedule.missOwnerAfterMin" min="20" max="1440"></div>
+          <p class="hint">她会先看桌宠聊天窗是否开着；没开就发 QQ 私聊；都没条件时只在桌宠冒个泡。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 记忆 -->
+    <section class="section" data-section="memory">
+      <div class="grid">
+        <div class="card">
+          <h2>重要信息记忆</h2>
+          <p class="hint">只有一份。每次对话前都会读。主人喜欢吃什么、喜欢看什么、讨厌什么、近期发生了什么，写这里。</p>
+          <textarea id="importantText" class="input tall" style="min-height:260px"></textarea>
+          <div class="inline" style="margin-top:10px">
+            <button class="btn primary" id="btnSaveImportant">保存重要信息</button>
+            <span class="hint" id="importantBytes"></span>
+          </div>
+          <div class="field"><label>旧日记压缩期限（天）</label><input class="input" type="number" data-path="memory.consolidateAfterDays" min="7" max="90"></div>
+          <p class="hint">超过这个天数的全天总结会在睡觉时压缩进「重要信息记忆」，琐事丢弃；最近这些天保留原文。</p>
+        </div>
+        <div class="card">
+          <h2>记忆文件</h2>
+          <div class="inline" style="margin-bottom:10px">
+            <button class="btn ghost" id="btnRefreshMemory">刷新</button>
+            <button class="btn ghost" id="btnOpenMemory2">打开目录</button>
+            <button class="btn ghost" id="btnFinalizeDay2">整理今天</button>
+            <button class="btn ghost" id="btnConsolidate">压缩旧日记</button>
+          </div>
+          <div class="mem-list" id="memList"></div>
+          <pre class="preview" id="memPreview" style="display:none"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 自由活动 -->
+    <section class="section" data-section="free">
+      <div class="grid">
+        <div class="card">
+          <h2>她能做什么</h2>
+          <div class="row"><div><div class="label">启用自由活动</div><div class="desc">醒着、不忙、且不在聊天时才会开始。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.enabled"><i></i></label></div></div>
+          <div class="row"><div><div class="label">画画</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.draw"><i></i></label></div></div>
+          <div class="row"><div><div class="label">写小游戏</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.codeGame"><i></i></label></div></div>
+          <div class="row"><div><div class="label">读书</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.readBook"><i></i></label></div></div>
+          <div class="row"><div><div class="label">欣赏旧画</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.appreciate"><i></i></label></div></div>
+          <div class="row"><div><div class="label">玩自己写的游戏</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.playGame"><i></i></label></div></div>
+          <div class="row"><div><div class="label">整理作品</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.clean"><i></i></label></div></div>
+          <div class="row"><div><div class="label">主动想主人</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.missOwner"><i></i></label></div></div>
+        </div>
+        <div class="card">
+          <h2>边界与配额</h2>
+          <div class="field"><label>每天玩游戏上限（分钟，最多 30）</label><input class="input" type="number" data-path="free.maxGameMinutesPerDay" min="0" max="30"></div>
+          <div class="field"><label>旧作品保留天数</label><input class="input" type="number" data-path="free.keepDays" min="1" max="365"></div>
+          <div class="row"><div><div class="label">允许 Python 游戏</div><div class="desc">不允许联网 / 读写文件 / 启动进程；代码 ≤ 20KB。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.allowPython"><i></i></label></div></div>
+          <div class="field"><label>书目录（留空 = 数据目录/书）</label><input class="input" data-path="free.booksDir" placeholder="F:\我的书"></div>
+          <p class="hint">书只读不删。她只会清理自己的画和游戏，而且只删超过保留天数的。</p>
+          <div class="inline" style="margin-top:10px">
+            <button class="btn" data-run="draw">画一幅</button>
+            <button class="btn" data-run="codeGame">写游戏</button>
+            <button class="btn" data-run="readBook">读一本书</button>
+            <button class="btn" data-run="appreciate">看旧画</button>
+            <button class="btn" data-run="playGame">玩一局</button>
+            <button class="btn" data-run="clean">整理</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>今天的自由活动</h2>
+          <div id="freeStatus" class="list" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
+          <h2>她的作品</h2>
+          <div id="worksList" class="list" style="margin-top:8px;max-height:380px;overflow:auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 高级 -->
+    <section class="section" data-section="advanced">
+      <div class="grid">
+        <div class="card">
+          <h2>模型</h2>
+          <div class="field"><label>Base URL</label><input class="input" data-path="llm.baseUrl" placeholder="https://api.deepseek.com"></div>
+          <div class="field"><label>模型</label><input class="input" data-path="llm.model" placeholder="deepseek-chat"></div>
+          <div class="field"><label>API Key</label><input class="input" type="password" data-path="llm.apiKey" placeholder="留空 = 使用 DSH 的 DeepSeek key / 环境变量；留空保存不会清掉旧 key"></div>
+          <div class="field"><label>上下文窗口（tokens）</label><input class="input" type="number" data-path="llm.contextLimit" min="8000" max="200000" step="1000"></div>
+          <div class="field"><label>温度 / 单次最大输出</label><div class="inline"><input class="input" type="number" data-path="llm.temperature" min="0" max="2" step="0.05"><input class="input" type="number" data-path="llm.maxTokens" min="64" max="8192" step="32"></div></div>
+          <div class="inline"><button class="btn" id="btnTestLLM">测试连接</button><span class="pill" id="llmState">未检测</span></div>
+        </div>
+        <div class="card">
+          <h2>数据目录</h2>
+          <div class="field"><label>共享目录（桌宠 + QQ + 记忆）</label><input class="input" data-path="dataDir"></div>
+          <p class="hint">人设人格卡、记忆卡、对话历史、自由活动作品都在这里。换目录后旧数据不会自动搬。</p>
+          <div class="inline">
+            <button class="btn ghost" id="btnOpenRoot">打开数据目录</button>
+            <button class="btn ghost" id="btnReloadConfig">重新读取</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>危险操作</h2>
+          <p class="hint">这些按钮不会删记忆，除非你确认。</p>
+          <div class="inline">
+            <button class="btn danger" id="btnResetWindows">关闭所有桌宠窗口</button>
+          </div>
+          <p class="hint" style="margin-top:10px">窗口令牌用于桌宠/聊天窗的本地鉴权。重置后旧窗口会失效，需要重新打开。</p>
+          <button class="btn danger" id="btnRotateToken">重置窗口令牌</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast-wrap"></div>
+
+  <script src="/dsh-whale/static/ui.js"></script>
+  <script src="/dsh-whale/static/settings.js"></script>
+</body>
+</html>

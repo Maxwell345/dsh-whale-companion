@@ -1,0 +1,28 @@
+# local data / secrets
+config.json
+日志/
+窗口缓存/
+记忆卡/
+对话历史/
+自由活动/
+书/
+导出/
+*.log
+*.zip
+
+# Electron runtime; install with tools/install-electron.ps1
+pet-shell/
+pet/electron/
+
+# Live2D Cubism Core 有单独授权；本地自用，不随公开仓库分发
+pet/live2d/vendor/live2dcubismcore.min.js
+
+# old test artifacts
+pet/live2d/qa/
+pet/live2d/selftest.html
+pet/live2d/SELFTEST.md
+
+# tooling
+node_modules/
+.DS_Store
+Thumbs.db

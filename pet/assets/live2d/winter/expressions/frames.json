@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "outfit": "winter",
+  "coordinateSpace": "rendered-canvas",
+  "sourceCanvas": {
+    "width": 1052,
+    "height": 1494
+  },
+  "base": "base.webp",
+  "pose": {
+    "action": "idle",
+    "timeSeconds": 1.35,
+    "speaking": false
+  },
+  "description": "透明脸部合成裁片。x/y为贴回sourceCanvas的左上坐标；不属于Cubism expression3文件。",
+  "frames": {
+    "neutral": {
+      "file": "neutral.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "happy": {
+      "file": "happy.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "shy": {
+      "file": "shy.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "pout": {
+      "file": "pout.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "sleepy": {
+      "file": "sleepy.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "surprised": {
+      "file": "surprised.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    },
+    "eat": {
+      "file": "eat.png",
+      "x": 273,
+      "y": 453,
+      "width": 491,
+      "height": 331
+    }
+  }
+}

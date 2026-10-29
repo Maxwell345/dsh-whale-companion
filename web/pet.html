@@ -1,0 +1,70 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whale Pet</title>
+  <link rel="stylesheet" href="/dsh-whale/static/ui/pet.css?v=20261029l">
+</head>
+<body class="pet-body">
+  <div id="petRoot" class="pet-root">
+    <div class="pet-column" id="petColumn">
+      <div class="grip" id="grip" title="按住拖动小肥鱼；快速单击是抚摸"></div>
+
+      <div class="stage" id="stage">
+        <div class="glow"></div>
+        <div id="avatar" class="avatar"></div>
+        <div class="hit-layer" id="hitLayer">
+          <div class="hit hit-head" data-zone="head" title="摸摸头"></div>
+          <div class="hit hit-ear" data-zone="ear" title="捏耳朵"></div>
+          <div class="hit hit-cheek" data-zone="cheek" title="戳脸颊"></div>
+          <div class="hit hit-belly" data-zone="belly" title="摸肚子"></div>
+          <div class="hit hit-tail" data-zone="tail" title="摸摸鲸鱼尾巴"></div>
+          <div class="hit hit-hand" data-zone="hand" title="牵小手"></div>
+        </div>
+        <div class="bubble" id="bubble" hidden></div>
+        <div class="particles" id="particles"></div>
+        <div class="zzz" id="zzz" hidden>Z z z</div>
+      </div>
+
+      <div class="toolbar" id="toolbar">
+        <button class="tool" data-act="chat" title="展开聊天（左键）">💬</button>
+        <button class="tool" data-act="outfit" title="换装">👗</button>
+        <button class="tool" data-act="sleep" title="哄睡 / 看状态">🌙</button>
+        <button class="tool close" data-act="close" title="关闭桌宠">✕</button>
+      </div>
+
+      <div class="outfit-menu" id="outfitMenu" hidden>
+        <button data-outfit="maid">经典女仆装</button>
+        <button data-outfit="knit">针织帽</button>
+        <button data-outfit="winter">冬装</button>
+      </div>
+
+      <div class="toast" id="toast" hidden></div>
+    </div>
+
+    <aside class="chat-dock" id="chatDock" hidden>
+      <iframe id="chatFrame" title="小肥鱼聊天" src="about:blank"></iframe>
+    </aside>
+
+    <div class="context-menu" id="contextMenu" hidden>
+      <button data-menu="chat">打开聊天</button>
+      <button data-menu="outfit">换装</button>
+      <button data-menu="sleep" id="menuSleep">哄睡</button>
+      <button data-menu="close" class="danger">关闭桌宠</button>
+    </div>
+  </div>
+
+  <script src="/dsh-whale/static/ui/pet.js?v=20261029l"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
