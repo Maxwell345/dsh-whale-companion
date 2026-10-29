@@ -34,7 +34,7 @@
 1. 把仓库放到 F 盘，例如：
 
    ```powershell
-   git clone https://github.com/<你的账号>/dsh-whale-companion.git F:\DeepSeekBot\dsh-whale-companion
+   git clone https://github.com/Maxwell345/dsh-whale-companion.git F:\DeepSeekBot\dsh-whale-companion
    ```
 
 2. 运行便携安装脚本（只会在 C 盘 profile 里留一个 junction，插件代码/数据/Electron 都在 F 盘）：
