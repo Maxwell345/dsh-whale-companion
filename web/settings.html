@@ -230,7 +230,7 @@
           <h2>边界与配额</h2>
           <div class="field"><label>每天玩游戏上限（分钟，最多 30）</label><input class="input" type="number" data-path="free.maxGameMinutesPerDay" min="0" max="30"></div>
           <div class="field"><label>旧作品保留天数</label><input class="input" type="number" data-path="free.keepDays" min="1" max="365"></div>
-          <div class="row"><div><div class="label">允许 Python 游戏</div><div class="desc">不允许联网 / 读写文件 / 启动进程；代码 ≤ 20KB。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.allowPython"><i></i></label></div></div>
+          <div class="row"><div><div class="label">允许写 Python 文字游戏</div><div class="desc">只生成命令行回合制；不允许联网 / 读写文件 / 启动进程；代码 ≤ 20KB。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.allowPython"><i></i></label></div></div>
           <div class="field"><label>书目录（留空 = 数据目录/书）</label><input class="input" data-path="free.booksDir" placeholder="F:\我的书"></div>
           <p class="hint">书只读不删。她只会清理自己的画和游戏，而且只删超过保留天数的。</p>
           <div class="inline" style="margin-top:10px">

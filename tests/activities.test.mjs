@@ -64,8 +64,26 @@ test('Python game validation blocks system and network imports', () => {
     assert.doesNotThrow(() => s.validatePython('import random\nprint(random.randint(1, 3))\n'))
     assert.throws(() => s.validatePython('import os\nprint(os.getcwd())\n'))
     assert.throws(() => s.validatePython('import socket\n'))
+    assert.throws(() => s.validatePython('import tkinter\n'))
     assert.throws(() => s.validatePython('open("x", "w")\n'))
     assert.throws(() => s.validatePython('eval("1+1")\n'))
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('codeGame only accepts Python CLI text games', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-code-'))
+  try {
+    const s = makeService(root)
+    s.llm.call = async () => ({ text: '# python\nprint("猜数字")\nn = input("1-3: ")\nprint("你选了", n)\n' })
+    const r = await s.codeGame()
+    assert.equal(r.ok, true)
+    assert.match(r.file, /\.py$/)
+    assert.match(r.log, /命令行回合制/)
+
+    s.llm.call = async () => ({ text: '<!doctype html><html><body><script>keydown</script></body></html>' })
+    await assert.rejects(() => s.codeGame(), /只允许生成 Python 命令行/)
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

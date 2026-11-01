@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Whale Pet</title>
-  <link rel="stylesheet" href="/dsh-whale/static/ui/pet.css?v=20261029l">
+  <link rel="stylesheet" href="/dsh-whale/static/ui/pet.css?v=20261101c">
 </head>
 <body class="pet-body">
   <div id="petRoot" class="pet-root">
@@ -16,11 +16,14 @@
         <div id="avatar" class="avatar"></div>
         <div class="hit-layer" id="hitLayer">
           <div class="hit hit-head" data-zone="head" title="摸摸头"></div>
-          <div class="hit hit-ear" data-zone="ear" title="捏耳朵"></div>
+          <div class="hit hit-ear-l" data-zone="ear-l" title="捏左耳"></div>
+          <div class="hit hit-ear-r" data-zone="ear-r" title="捏右耳"></div>
           <div class="hit hit-cheek" data-zone="cheek" title="戳脸颊"></div>
           <div class="hit hit-belly" data-zone="belly" title="摸肚子"></div>
           <div class="hit hit-tail" data-zone="tail" title="摸摸鲸鱼尾巴"></div>
-          <div class="hit hit-hand" data-zone="hand" title="牵小手"></div>
+          <div class="hit hit-hand-l" data-zone="hand-l" title="牵左手"></div>
+          <div class="hit hit-hand-r" data-zone="hand-r" title="牵右手"></div>
+          <div class="hit hit-feet" data-zone="feet" title="碰双脚"></div>
         </div>
         <div class="bubble" id="bubble" hidden></div>
         <div class="particles" id="particles"></div>
@@ -55,9 +58,12 @@
     </div>
   </div>
 
-  <script src="/dsh-whale/static/ui/pet.js?v=20261029l"></script>
+  <script src="/dsh-whale/static/ui/pet.js?v=20261101c"></script>
 </body>
 </html>
+
+
+
 
 
 

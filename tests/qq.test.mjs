@@ -22,6 +22,18 @@ test('QQ parses text and @ segments, including CQ strings', () => {
   assert.equal(atSelf([{ type: 'at', data: { qq: '99999' } }], '20002'), false)
 })
 
+test('QQ refuses to send when the live socket is missing', async () => {
+  const client = new QQClient({
+    getConfig: () => cfg(),
+    isAwake: () => true,
+    onMessage: async () => {},
+    log: () => {},
+  })
+  client.connected = true
+  client.ws = null
+  await assert.rejects(() => client.action('send_private_msg', { user_id: 10001, message: [] }), /QQ 未连接/)
+})
+
 test('QQ delivers only owner private messages and @-mentions in configured groups', async () => {
   const got = []
   const client = new QQClient({

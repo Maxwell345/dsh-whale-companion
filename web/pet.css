@@ -5,6 +5,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
   --blue: #5aa8ff;
   --pink: #ffb7cf;
   --cream: #fff7ec;
+  --pet-scale: 1;
 }
 * { box-sizing: border-box; }
 body.pet-body {
@@ -52,7 +53,10 @@ body:not(.chroma):not(.electron) .pet-column {
     linear-gradient(170deg, #243b60, #17273f);
   box-shadow: inset 0 1px 0 #7892b93b;
 }
-body.chat-open .pet-column { width: 380px; flex-basis: 380px; }
+body.chat-open .pet-column {
+  width: calc(380px * var(--pet-scale, 1));
+  flex-basis: calc(380px * var(--pet-scale, 1));
+}
 .chat-dock {
   position: relative;
   flex: 0 0 460px;
@@ -163,11 +167,14 @@ body.chat-open .pet-column { width: 380px; flex-basis: 380px; }
 }
 .hit:hover { background: #8fd0ff0d; }
 .hit-head { left: 20%; top: 2%; width: 60%; height: 28%; }
-.hit-ear { left: 6%; top: 32%; width: 24%; height: 18%; }
+.hit-ear-l { left: 6%; top: 32%; width: 24%; height: 18%; }
+.hit-ear-r { right: 6%; top: 32%; width: 24%; height: 18%; }
 .hit-cheek { left: 28%; top: 40%; width: 26%; height: 14%; }
 .hit-belly { left: 24%; top: 56%; width: 52%; height: 22%; }
 .hit-tail { right: 2%; bottom: 8%; width: 28%; height: 28%; }
-.hit-hand { left: 10%; top: 58%; width: 30%; height: 16%; }
+.hit-hand-l { left: 10%; top: 58%; width: 30%; height: 16%; }
+.hit-hand-r { right: 10%; top: 58%; width: 30%; height: 16%; }
+.hit-feet { left: 30%; bottom: 1%; width: 40%; height: 15%; }
 .bubble {
   position: absolute;
   top: 3%; left: 50%;

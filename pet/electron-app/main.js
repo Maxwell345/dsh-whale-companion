@@ -72,8 +72,9 @@ function createWindow() {
     if (process.env.WHALE_TEST_TOUCH === '1') {
       setTimeout(async () => {
         try {
+          const selector = process.env.WHALE_TEST_ZONE || '.hit-head'
           const out = await win.webContents.executeJavaScript(`(() => {
-            const el = document.querySelector('.hit-head')
+            const el = document.querySelector(${JSON.stringify(selector)})
             if (!el) return 'no-hit'
             const r = el.getBoundingClientRect()
             const point = { bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, pointerId: 1, pointerType: 'mouse' }

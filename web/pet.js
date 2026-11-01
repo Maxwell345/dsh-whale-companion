@@ -49,6 +49,25 @@
     avatar.init(avatarEl, { outfit: state?.outfit || 'maid' })
   }
 
+  function petScale() {
+    const n = Number(state?.scale)
+    return Number.isFinite(n) && n > 0 ? Math.min(1.8, Math.max(0.6, n)) : 1
+  }
+
+  function applyPetScale() {
+    document.documentElement.style.setProperty('--pet-scale', String(petScale()))
+  }
+
+  function collapsedSize() {
+    const s = petScale()
+    return { width: Math.round(380 * s), height: Math.round(600 * s) }
+  }
+
+  function expandedSize() {
+    const s = petScale()
+    return { width: Math.round(380 * s + 460), height: Math.round(600 * s) }
+  }
+
   function showToast(text) {
     toast.hidden = false
     toast.textContent = text
@@ -98,6 +117,7 @@
     try {
       const r = await api('/dsh-whale/api/pet/state')
       state = r.state
+      applyPetScale()
       zzz.hidden = !state.asleep
       if (state.outfit && avatar?.setOutfit) avatar.setOutfit(state.outfit)
       if (state.asleep) {
@@ -116,8 +136,9 @@
     document.body.classList.add('chat-open')
     chatDock.hidden = false
     chatFrame.src = `/dsh-whale/chat?panel=1&v=${Date.now()}`
-    if (shell?.setSize) await shell.setSize(840, 620).catch(() => {})
-    else { try { window.resizeTo(840, 620) } catch {} }
+    const size = expandedSize()
+    if (shell?.setSize) await shell.setSize(size.width, size.height).catch(() => {})
+    else { try { window.resizeTo(size.width, size.height) } catch {} }
     await setChatState(true)
   }
 
@@ -129,8 +150,9 @@
     document.body.classList.remove('chat-open')
     chatDock.hidden = true
     chatFrame.src = 'about:blank'
-    if (shell?.setSize) await shell.setSize(380, 600).catch(() => {})
-    else { try { window.resizeTo(380, 600) } catch {} }
+    const size = collapsedSize()
+    if (shell?.setSize) await shell.setSize(size.width, size.height).catch(() => {})
+    else { try { window.resizeTo(size.width, size.height) } catch {} }
     await setChatState(false)
   }
 
@@ -338,7 +360,8 @@
             document.body.classList.remove('chat-open')
             chatDock.hidden = true
             chatFrame.src = 'about:blank'
-            if (shell?.setSize) shell.setSize(380, 600).catch(() => {})
+            const size = collapsedSize()
+            if (shell?.setSize) shell.setSize(size.width, size.height).catch(() => {})
           } else if (data.type === 'state' && data.state) {
             state = data.state
             zzz.hidden = !state.asleep
