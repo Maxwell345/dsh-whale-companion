@@ -28,8 +28,8 @@ function createWindow() {
     height,
     x,
     y,
-    minWidth: 320,
-    minHeight: 480,
+    minWidth: 220,
+    minHeight: 350,
     transparent: true,
     frame: false,
     resizable: false,
@@ -128,8 +128,8 @@ function createWindow() {
 
 ipcMain.handle('whale:set-size', (_event, size) => {
   if (!win || win.isDestroyed()) return null
-  const width = Math.max(320, Math.min(1200, Math.round(Number(size?.width) || 380)))
-  const height = Math.max(480, Math.min(1000, Math.round(Number(size?.height) || 600)))
+  const width = Math.max(220, Math.min(1200, Math.round(Number(size?.width) || 380)))
+  const height = Math.max(350, Math.min(1000, Math.round(Number(size?.height) || 600)))
   const b = win.getBounds()
   win.setBounds({ x: b.x, y: b.y, width, height }, false)
   return win.getBounds()

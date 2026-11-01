@@ -2,11 +2,12 @@
   "version": 1,
   "articulation": "overlap",
   "maxAngles": {
-    "arm": 0.02,
-    "hair": 0.002,
-    "ear": 0.02,
-    "tail": 0.045,
-    "head": 0.015
+    "arm": 0.05,
+    "hair": 0.0027,
+    "ear": 0.05,
+    "tail": 0.09,
+    "head": 0.0205,
+    "leg": 0.06
   },
   "renderer": "canvas2d-sprite",
   "width": 1052,
@@ -20,7 +21,7 @@
   "layers": [
     {
       "id": "joint-fill",
-      "src": "layers/joint-fill.png",
+      "src": "layers/joint-overlap.png",
       "x": 0,
       "y": 0,
       "width": 1052,
@@ -46,11 +47,11 @@
     },
     {
       "id": "tail",
-      "src": "layers/tail.png",
-      "x": 791,
-      "y": 994,
-      "width": 261,
-      "height": 226,
+      "src": "layers/tail-overlap.png",
+      "x": 763,
+      "y": 981,
+      "width": 289,
+      "height": 260,
       "pivot": [
         815,
         1180
@@ -58,21 +59,34 @@
       "z": 1
     },
     {
-      "id": "legs",
-      "src": "layers/legs.png",
+      "id": "leg-l",
+      "src": "layers/leg-l.png",
       "x": 340,
       "y": 1262,
-      "width": 328,
+      "width": 168,
       "height": 200,
       "pivot": [
-        521,
-        1255
+        432.4,
+        1250
+      ],
+      "z": 2
+    },
+    {
+      "id": "leg-r",
+      "src": "layers/leg-r.png",
+      "x": 508,
+      "y": 1262,
+      "width": 160,
+      "height": 200,
+      "pivot": [
+        580,
+        1250
       ],
       "z": 2
     },
     {
       "id": "body",
-      "src": "layers/body.png",
+      "src": "layers/body-overlap.png",
       "x": 142,
       "y": 712,
       "width": 705,
@@ -85,11 +99,11 @@
     },
     {
       "id": "arm-l",
-      "src": "layers/arm-l.png",
+      "src": "layers/arm-l-overlap.png",
       "x": 168,
-      "y": 752,
-      "width": 234,
-      "height": 286,
+      "y": 732,
+      "width": 254,
+      "height": 306,
       "pivot": [
         371,
         840
@@ -98,11 +112,11 @@
     },
     {
       "id": "arm-r",
-      "src": "layers/arm-r.png",
-      "x": 637,
-      "y": 754,
-      "width": 204,
-      "height": 289,
+      "src": "layers/arm-r-overlap.png",
+      "x": 617,
+      "y": 734,
+      "width": 224,
+      "height": 309,
       "pivot": [
         674,
         840
@@ -111,11 +125,11 @@
     },
     {
       "id": "ear-l",
-      "src": "layers/ear-l.png",
+      "src": "layers/ear-l-overlap.png",
       "x": 43,
-      "y": 495,
-      "width": 149,
-      "height": 135,
+      "y": 475,
+      "width": 169,
+      "height": 174,
       "pivot": [
         196,
         556
@@ -124,11 +138,11 @@
     },
     {
       "id": "ear-r",
-      "src": "layers/ear-r.png",
-      "x": 803,
-      "y": 495,
-      "width": 183,
-      "height": 136,
+      "src": "layers/ear-r-overlap.png",
+      "x": 783,
+      "y": 475,
+      "width": 203,
+      "height": 176,
       "pivot": [
         808,
         557
@@ -263,5 +277,583 @@
       504,
       705
     ]
+  },
+  "seamCoverage": {
+    "sourcePixels": 32,
+    "headTravel": 4.2,
+    "notes": "Overlapping source texture at shoulders, fin roots and tail root; split legs share the original standing pose. Original PNGs retained."
+  },
+  "headTravel": 4.2,
+  "views": {
+    "back": {
+      "layers": [
+        {
+          "id": "hair-back",
+          "src": "layers/back-hair-back.png",
+          "x": 14,
+          "y": 401,
+          "width": 1012,
+          "height": 901,
+          "pivot": [
+            526,
+            590
+          ],
+          "z": 0,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "tail",
+          "src": "layers/back-tail.png",
+          "x": 701,
+          "y": 1041,
+          "width": 337,
+          "height": 204,
+          "pivot": [
+            705,
+            1183
+          ],
+          "z": 1,
+          "motion": "tail"
+        },
+        {
+          "id": "leg-l",
+          "src": "layers/back-leg-l.png",
+          "x": 365,
+          "y": 1242,
+          "width": 122,
+          "height": 226,
+          "pivot": [
+            426,
+            1260
+          ],
+          "z": 2,
+          "motion": "leg-l"
+        },
+        {
+          "id": "leg-r",
+          "src": "layers/back-leg-r.png",
+          "x": 561,
+          "y": 1242,
+          "width": 122,
+          "height": 226,
+          "pivot": [
+            622,
+            1260
+          ],
+          "z": 3,
+          "motion": "leg-r"
+        },
+        {
+          "id": "body",
+          "src": "layers/back-body.png",
+          "x": 340,
+          "y": 725,
+          "width": 369,
+          "height": 316,
+          "pivot": [
+            526,
+            988
+          ],
+          "z": 4
+        },
+        {
+          "id": "skirt",
+          "src": "layers/back-skirt.png",
+          "x": 192,
+          "y": 957,
+          "width": 666,
+          "height": 352,
+          "pivot": [
+            526,
+            1000
+          ],
+          "z": 5,
+          "motion": "skirt"
+        },
+        {
+          "id": "arm-l",
+          "src": "layers/back-arm-l.png",
+          "x": 217,
+          "y": 760,
+          "width": 168,
+          "height": 273,
+          "pivot": [
+            365,
+            792
+          ],
+          "z": 6,
+          "motion": "arm-l"
+        },
+        {
+          "id": "arm-r",
+          "src": "layers/back-arm-r.png",
+          "x": 664,
+          "y": 760,
+          "width": 168,
+          "height": 283,
+          "pivot": [
+            684,
+            792
+          ],
+          "z": 7,
+          "motion": "arm-r"
+        },
+        {
+          "id": "ear-l",
+          "src": "layers/back-ear-l.png",
+          "x": 52,
+          "y": 512,
+          "width": 163,
+          "height": 121,
+          "pivot": [
+            206,
+            567
+          ],
+          "z": 8,
+          "motion": "ear-l",
+          "group": "head"
+        },
+        {
+          "id": "ear-r",
+          "src": "layers/back-ear-r.png",
+          "x": 835,
+          "y": 512,
+          "width": 166,
+          "height": 121,
+          "pivot": [
+            843,
+            567
+          ],
+          "z": 9,
+          "motion": "ear-r",
+          "group": "head"
+        },
+        {
+          "id": "hair-front",
+          "src": "layers/back-hair-front.png",
+          "x": 187,
+          "y": 167,
+          "width": 667,
+          "height": 858,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 10,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "accessory",
+          "src": "layers/back-accessory.png",
+          "x": 169,
+          "y": 92,
+          "width": 708,
+          "height": 370,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 11,
+          "group": "head"
+        },
+        {
+          "id": "ahoge",
+          "src": "layers/back-ahoge.png",
+          "x": 337,
+          "y": 63,
+          "width": 158,
+          "height": 95,
+          "pivot": [
+            526,
+            144
+          ],
+          "z": 12,
+          "motion": "hair",
+          "group": "head"
+        }
+      ],
+      "maxAngles": {
+        "arm": 0.34,
+        "leg": 0.25,
+        "hair": 0.025,
+        "ear": 0.12,
+        "tail": 0.22,
+        "head": 0.025
+      },
+      "climbing": false,
+      "art": "offline-authored-simplified-turnaround"
+    },
+    "left": {
+      "layers": [
+        {
+          "id": "hair-back",
+          "src": "layers/left-hair-back.png",
+          "x": 385,
+          "y": 189,
+          "width": 502,
+          "height": 1121,
+          "pivot": [
+            526,
+            590
+          ],
+          "z": 0,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "tail",
+          "src": "layers/left-tail.png",
+          "x": 654,
+          "y": 1081,
+          "width": 329,
+          "height": 177,
+          "pivot": [
+            705,
+            1183
+          ],
+          "z": 1,
+          "motion": "tail"
+        },
+        {
+          "id": "leg-l",
+          "src": "layers/left-leg-l.png",
+          "x": 499,
+          "y": 1247,
+          "width": 153,
+          "height": 213,
+          "pivot": [
+            602,
+            1260
+          ],
+          "z": 2,
+          "motion": "leg-l"
+        },
+        {
+          "id": "leg-r",
+          "src": "layers/left-leg-r.png",
+          "x": 386,
+          "y": 1247,
+          "width": 153,
+          "height": 213,
+          "pivot": [
+            489,
+            1260
+          ],
+          "z": 3,
+          "motion": "leg-r"
+        },
+        {
+          "id": "arm-l",
+          "src": "layers/left-arm-l.png",
+          "x": 311,
+          "y": 773,
+          "width": 210,
+          "height": 95,
+          "pivot": [
+            486,
+            803
+          ],
+          "z": 4,
+          "motion": "arm-l"
+        },
+        {
+          "id": "body",
+          "src": "layers/left-body.png",
+          "x": 407,
+          "y": 727,
+          "width": 280,
+          "height": 314,
+          "pivot": [
+            526,
+            988
+          ],
+          "z": 5
+        },
+        {
+          "id": "skirt",
+          "src": "layers/left-skirt.png",
+          "x": 357,
+          "y": 984,
+          "width": 402,
+          "height": 331,
+          "pivot": [
+            526,
+            1000
+          ],
+          "z": 6,
+          "motion": "skirt"
+        },
+        {
+          "id": "arm-r",
+          "src": "layers/left-arm-r.png",
+          "x": 306,
+          "y": 781,
+          "width": 265,
+          "height": 166,
+          "pivot": [
+            518,
+            814
+          ],
+          "z": 7,
+          "motion": "arm-r"
+        },
+        {
+          "id": "ear-l",
+          "src": "layers/left-ear-l.png",
+          "x": 632,
+          "y": 492,
+          "width": 154,
+          "height": 112,
+          "pivot": [
+            643,
+            545
+          ],
+          "z": 8,
+          "motion": "ear-l",
+          "group": "head"
+        },
+        {
+          "id": "hair-front",
+          "src": "layers/left-hair-front.png",
+          "x": 302,
+          "y": 205,
+          "width": 452,
+          "height": 562,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 9,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "accessory",
+          "src": "layers/left-accessory.png",
+          "x": 330,
+          "y": 116,
+          "width": 448,
+          "height": 299,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 10,
+          "group": "head"
+        },
+        {
+          "id": "ahoge",
+          "src": "layers/left-ahoge.png",
+          "x": 383,
+          "y": 68,
+          "width": 132,
+          "height": 86,
+          "pivot": [
+            526,
+            144
+          ],
+          "z": 11,
+          "motion": "hair",
+          "group": "head"
+        }
+      ],
+      "maxAngles": {
+        "arm": 0.34,
+        "leg": 0.25,
+        "hair": 0.025,
+        "ear": 0.12,
+        "tail": 0.22,
+        "head": 0.025
+      },
+      "climbing": true,
+      "art": "offline-authored-simplified-turnaround"
+    },
+    "right": {
+      "layers": [
+        {
+          "id": "hair-back",
+          "src": "layers/right-hair-back.png",
+          "x": 188,
+          "y": 180,
+          "width": 475,
+          "height": 1130,
+          "pivot": [
+            526,
+            590
+          ],
+          "z": 0,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "tail",
+          "src": "layers/right-tail.png",
+          "x": 70,
+          "y": 1082,
+          "width": 331,
+          "height": 178,
+          "pivot": [
+            396,
+            1183
+          ],
+          "z": 1,
+          "motion": "tail"
+        },
+        {
+          "id": "leg-l",
+          "src": "layers/right-leg-l.png",
+          "x": 403,
+          "y": 1247,
+          "width": 153,
+          "height": 213,
+          "pivot": [
+            453,
+            1260
+          ],
+          "z": 2,
+          "motion": "leg-l"
+        },
+        {
+          "id": "leg-r",
+          "src": "layers/right-leg-r.png",
+          "x": 514,
+          "y": 1247,
+          "width": 153,
+          "height": 213,
+          "pivot": [
+            564,
+            1260
+          ],
+          "z": 3,
+          "motion": "leg-r"
+        },
+        {
+          "id": "arm-l",
+          "src": "layers/right-arm-l.png",
+          "x": 532,
+          "y": 774,
+          "width": 211,
+          "height": 95,
+          "pivot": [
+            570,
+            803
+          ],
+          "z": 4,
+          "motion": "arm-l"
+        },
+        {
+          "id": "body",
+          "src": "layers/right-body.png",
+          "x": 368,
+          "y": 727,
+          "width": 294,
+          "height": 314,
+          "pivot": [
+            526,
+            988
+          ],
+          "z": 5
+        },
+        {
+          "id": "skirt",
+          "src": "layers/right-skirt.png",
+          "x": 296,
+          "y": 984,
+          "width": 401,
+          "height": 333,
+          "pivot": [
+            526,
+            1000
+          ],
+          "z": 6,
+          "motion": "skirt"
+        },
+        {
+          "id": "arm-r",
+          "src": "layers/right-arm-r.png",
+          "x": 482,
+          "y": 781,
+          "width": 266,
+          "height": 167,
+          "pivot": [
+            537,
+            814
+          ],
+          "z": 7,
+          "motion": "arm-r"
+        },
+        {
+          "id": "ear-l",
+          "src": "layers/right-ear-l.png",
+          "x": 267,
+          "y": 493,
+          "width": 154,
+          "height": 112,
+          "pivot": [
+            410,
+            545
+          ],
+          "z": 8,
+          "motion": "ear-l",
+          "group": "head"
+        },
+        {
+          "id": "hair-front",
+          "src": "layers/right-hair-front.png",
+          "x": 297,
+          "y": 203,
+          "width": 453,
+          "height": 570,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 9,
+          "motion": "hair",
+          "group": "head"
+        },
+        {
+          "id": "accessory",
+          "src": "layers/right-accessory.png",
+          "x": 277,
+          "y": 115,
+          "width": 445,
+          "height": 362,
+          "pivot": [
+            526,
+            700
+          ],
+          "z": 10,
+          "group": "head"
+        },
+        {
+          "id": "ahoge",
+          "src": "layers/right-ahoge.png",
+          "x": 538,
+          "y": 68,
+          "width": 130,
+          "height": 87,
+          "pivot": [
+            526,
+            144
+          ],
+          "z": 11,
+          "motion": "hair",
+          "group": "head"
+        }
+      ],
+      "maxAngles": {
+        "arm": 0.34,
+        "leg": 0.25,
+        "hair": 0.025,
+        "ear": 0.12,
+        "tail": 0.22,
+        "head": 0.025
+      },
+      "climbing": true,
+      "art": "offline-authored-simplified-turnaround"
+    }
   }
 }
