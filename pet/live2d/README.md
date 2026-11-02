@@ -1,81 +1,83 @@
 # 小肥鱼 Canvas2D 桌宠动画
 
-本目录继续使用透明 PNG 分层 sprite；运行接口为 `window.WhaleAvatar`，无需构建、npm 包、CDN、Pixi 或 Cubism Core。所有加载均来自当前站点的本地静态路径。
+运行时仍是透明 PNG + Canvas2D sprite，定义 window.WhaleAvatar。无需 npm 安装、构建、CDN、Pixi 或 Cubism Core；运行资源全部来自当前站点的本地静态路径。
 
-## 本次交付状态
+## Maid 12帧运行时（2026-11-02）
 
-三套服装 maid / knit / winter 均有正面增强、独立左右侧面和无脸背面，支持跳跃、360° 转圈和左右循环攀爬。新增视角属于**离线补绘验证版**：后脑、后衣/裙、后腿鞋、尾背均单独绘制，没有以镜像正面冒充背面。左右侧面分别绘制，保留右侧发饰等不对称细节。
+maid现优先使用已通过美术初检的本机12格联系表裁出的turnaround12资源。本轮没有调用imagegen、上传大图或重画联系表；knit/winter及所有旧四帧保持原样。下文四帧说明仍适用于旧路径和回退。
 
-**未完成：新视角达到原立绘同等细节精度的美术精修。** 侧面与背面采用较简化的渐变线稿，转圈时可看出与原正面细节密度的差异；目前只有五个方向关键姿势，缺少3/4方向的过渡帧，相邻方向约32ms短过渡仍可能出现轮廓重影，连续转身的美术精修尚未完成。旧 PSD 和 expressions 导出保持原样，尚未把新增图层合入 PSD；当前动画以 rig.json 引用的 PNG 为准。
+新增文件位于 ../assets/live2d/maid/turnaround12/：00-front.png、01-030.png、02-060.png、03-090.png、04-120.png、05-150.png、06-180.png、07-210.png、08-240.png、09-270.png、10-300.png、11-330.png。
 
-## 接口与动作
+12张全部为1100×1494透明RGBA，Alpha>16人物高度均为1431px、顶点y26、脚底y1456，与现有turnaround/front.png相同。采用等比重采样，完整保留头发、尾巴和鞋；完整轮廓中心对齐x550，保留不同方向自然的脚形投影。240°全Alpha宽1075px，有效左右透明余量各约12.5px。没有把角色缩到1395px，也没有播放时再放大补偿。
 
-`init(container, {outfit: 'maid', fps: 60})` 创建透明画布，`ready` 可等待加载。`setOutfit(outfit)` 支持 maid / knit / winter，缓存已经加载的资源，并保留当前动作。`setExpression(name)` 支持 neutral、happy、shy、pout、sleepy、surprised、eat；`setSpeaking(bool)` 控制口型，停止说话时恢复 idle，正在攀爬则继续攀爬。`destroy()` 释放 RAF、图片请求、监听器、缓存与复用画布。
+新尺寸字段置于rig.turnaround12（保留rig.turnaround旧四帧定义）：frames包含00–11的本地路径，frameOrder明确顺序，frameCount为12，frameWidth为1100、frameHeight为1494，durationMs为1100，crossfadeMs为40。renderOffsetX仅为0或−0.5像素的取整补偿，没有renderScale或renderAnchor。
 
-`play(action)` 立即打断并重启动作；数组仍取最后一项，未知动作回到 idle。所有有限动作结束回 idle；climb-left / climb-right 持续循环，可被任何其他 play 调用打断，play('idle') 立即退出。适配层不移动窗口，也不检测屏幕边缘。
+运行时按每组实际frameWidth/frameHeight加载和分析；每个帧缓存实际宽高，绘制和轮廓行扫描均使用实际1100宽度。自动居中偏移为(rig.width−frame.width)/2=−24，再叠加renderOffsetX；不把图片截成旧1052宽。旧四帧默认仍为1052×1494，偏移为0。
 
-| 动作 | 表现 |
-|---|---|
-| idle | 呼吸、轻摆、眨眼、发梢/双耳/尾巴跟随；幅度仍保持轻微 |
-| happy | 更明显的小蹦、笑眼、双臂与摆尾、星光 |
-| shy | 缩身、偏头、脸红、两耳抖动和爱心 |
-| spin | 1050ms：正面 → 右侧面 → 无脸背面 → 左侧面 → 正面，一次360°后回 idle |
-| spray | 抬头、耳动、身形起伏与水滴 |
-| tail | 独立摆尾、身体一抖和强调符号 |
-| ear | 左右耳有不同相位/幅度，偏头侧躲 |
-| pout | 偏头、双臂内收、不满口型与符号 |
-| sleepy | 慢呼吸、点头、周期闭眼与哈欠 |
-| dance | 左右节奏摆动、起伏、双臂与尾巴运动 |
-| jump | 900ms：前162ms蓄力下蹲，随后起跳/滞空，约684ms接地后压缩回弹，回 idle |
-| heart | 双臂内收、脸红与胸前爱心 |
-| eat | 独立手臂、咀嚼、碗筷与眼部星光 |
-| nod / shake | 加大点头 / 摇头，配合发梢和双耳 |
-| sit | 加深蹲身压缩；未补独立弯膝坐姿帧 |
-| ignore | 更明显偏头、偏身、收臂和不满表情 |
-| climb-left / climb-right | 面向对应墙的独立侧姿，约1180ms一循环，手脚交替攀爬，耳/尾/发跟随 |
+spin按00→01→…→11→00均匀推进，总1100ms，每段约91.6667ms；每段末40ms线性淡化到下一帧，没有220ms停留，也没有每边界smooth缓入缓出。275/550/825ms分别为纯90°/180°/270°。12帧路径保留细微发梢、鳍耳、裙摆和尾巴纹理随动，禁用旧四帧的25ms头部特殊交接、整体取景拉远、整体旋转/平移和尺寸补偿，首尾不突然缩放。播放结束回idle，play接口和立即打断保持不变。
 
-一般动作姿态增益为旧版的1.5倍。实际关节角仍由 rig 限幅：手臂从0.02提高到0.05弧度，耳从0.02到0.05，尾从0.045到0.09，头从0.015到0.0205，发梢从0.002到0.0027，头部升降从3到4.2源像素。增幅通过关节覆盖补绘后实现；脸、眼、嘴、前发、帽饰和耳保持同组头部变换。
+12帧任一缺失、为空、尺寸错误或分析失败时，整套回退现有turnaround四帧；不删除旧文件，不影响初始化。新12未生效时，旧四帧及其他动作保持原行为。
 
-跳跃峰值离地150源像素，旧版约66；蓄力与落地分别有独立压缩曲线。idle沿用原画布比例与锚点，以保持既有热区几何；有限反应动作围绕固定脚底轻微拉远以免发梢触边，跳跃使用完整取景余量。较少动态效果偏好会降低所有运动幅度，但仍可看到转圈的背面。
+最终本地Chrome检查（240×320、DPR1）：12/12加载，110个10ms渲染采样身高均为293px，与idle相同，无空图或画布边缘裁切；1100个1ms姿态采样sx/sy恒为1，camera/x/y/r/head/headY恒为0。其余168个动作采样与本轮修改前逐像素一致（knit/winter114个、maid非spin54个）；缺帧回退四帧的三个采样也逐像素一致。快切动作/换装通过，无脚本异常、外部网络或白名单外资源请求。测试未启动DSH/QQ或真实Electron宿主。
 
-## 新增素材与 rig 兼容
+实际观感：90°/270°为独立侧廓，180°为完整背面，已经没有旧220ms停顿或整体拉远。120°→150°呆毛拱向变化在局部放大时仍可见，40ms短混合有短时双轮廓，正常240宽播放属轻微；210°仍较接近背面，但头饰、腰结和尾位有变化。本轮未扩展重画或修改这两处已初检通过的美术，保留供用户实际播放复核。
 
-每套 layers 内新增正面补偿层：
+## 旧四帧转圈素材与回退
 
-- joint-overlap.png / body-overlap.png：接缝与肩部覆盖；覆盖带扩至约32源像素。
-- arm-l-overlap.png / arm-r-overlap.png：手臂根部重叠。
-- ear-l-overlap.png / ear-r-overlap.png：独立鳍耳及耳根重叠；冬装耳和肩使用修正后的旋转中心。
-- tail-overlap.png：尾根重叠。
-- leg-l.png / leg-r.png：从原双腿层拆出的独立左右腿鞋。
+maid、knit、winter 均新增 turnaround/front.png、right.png、back.png、left.png，以及各套目录下的 turnaround-preview.png 四视拼图。每张帧为1052×1494透明 PNG；front直接复制本套sprite.png，保持字节一致。侧面和背面由本次内置imagegen参考原画生成完整上色位图，没有使用程序化线条、SVG、正面镜像或前图压窄替代。
 
-旧 PNG 保留，rig.layers 指向增强切片。原有 version:1、layers、bounds、face、maxAngles 保持兼容，新 runtime 也接受没有 views 的旧 rig。新增 headTravel 为头部升降限幅，seamCoverage 记录补偿信息。
+先生成并检查maid，再沿用其渲染质量与布局生成knit/winter。保留卷发的渐变与层次、裙摆/衣褶、鞋袜、尾巴和不对称帽饰；背面无脸、眼、嘴。选用的三套联系表都带原生Alpha，未采用绿色候选去背。透明像素残留RGB已清理，抗锯齿仍保留。
 
-rig.views.back / left / right 各自包含 layers，结构仍为 id、src、x、y、width、height、pivot、z；可选 motion 指定 hair、tail、ear-l/r、arm-l/r、leg-l/r、skirt，group:head 指定头部跟随，视角可有独立 maxAngles。
+素材来源、选用原稿和提示词分别见：
 
-每套新增 layers/{back,left,right}-*.png：hair-back 为长发轮廓，hair-front 为对应方向头部（back-hair-front 是无脸后脑），body / skirt 为衣服和裙摆，leg-l/r 为腿鞋，arm-l/r 为袖手，tail 为尾巴，ear-l/r 为鳍耳，accessory / ahoge 为帽饰及头顶特征。共108张方向图层；侧面只保留可见的一只耳，冬装头顶水花合在帽饰层。后发外围复用原画的蓝色卷发纹理，中央后脑为独立补绘。maid / knit 背面发饰位于屏幕左侧，与正面右侧发饰的空间位置对应。
+- [maid/turnaround/GENERATION.md](../assets/live2d/maid/turnaround/GENERATION.md)
+- [knit/turnaround/GENERATION.md](../assets/live2d/knit/turnaround/GENERATION.md)
+- [winter/turnaround/GENERATION.md](../assets/live2d/winter/turnaround/GENERATION.md)
 
-每套 turnaround-preview.png 是透明三视图预览。[source/build-turnarounds.mjs](../assets/live2d/source/build-turnarounds.mjs) 可离线重绘方向图层和预览，并合并 rig.views；需要本机已有 sharp，WHALE_ASSET_PACKAGE 可指定已有安装的位置。脚本不参与运行时，也不会安装依赖；旧 build-rigs.mjs 会重新生成原正面 rig，不能在本次成果上直接运行，否则会覆盖增强绑定。
+工具未返回可核验的后端模型版本号，因此来源记录为builtin-imagegen。原画参考和角色权利保持原归属，适配代码沿用项目MIT许可。
 
-转圈中段只绘制背面层，不绘制正面的脸、眼、嘴或脸部特效。所有变换的横向比例均为正，不使用负 scaleX 或 CSS rotateY。相邻方向过渡先把完整分层姿势绘到复用离屏画布，再整体混合，避免关节半透明叠色。正常绘制不逐帧创建 DOM 或 Image。
+## Spin的帧顺序与过渡
 
-## 回退和性能
+play('spin') 播放约1100ms：front → right → back → left → front；每方向段220ms，结束回idle。四次100ms交叉淡化分别位于170–270、390–490、610–710、830–930ms；490–610ms只绘完整背面。使用新turnaround帧，不再为spin绘制上一版简化的背面/侧面层。
 
-新增视角是可选资源。单个 back / left / right 视角加载失败只禁用该方向；正面动作和服装初始化继续可用。spin 需要三个新视角齐备，否则回退到正面轻摆，不再使用纸片翻转。缺某一侧时对应 climb 保持正面手脚轻摆循环。data-avatar-capabilities 只列出完整素材支持的动作；data-avatar-view 为当前方向，缺图时为 front-fallback。修复素材后需重新 init 或刷新以清除缓存。
+完整帧保留轻微水平位移、正比例缩放及由原姿态相位驱动的发梢、裙摆、鳍耳、尾巴纹理随动。加载时一次性读取Alpha轮廓，转场按共同轮廓配准以减轻双边；复用离屏画布，不逐帧创建Image或读取像素。横向比例始终为正，不使用scaleX(-1)或rotateY。
 
-正面必要图层/rig 失败时仍使用原静态立绘回退，换装失败时保留上一套可用服装。页面隐藏暂停 RAF，context lost/恢复沿用原适配层行为。
+为缩短重复眼睛持续时间，头部内部采用25ms连续交接，外围发丝和衣裙仍为100ms。这个局部时间短于整帧淡化要求，属于当前折中。精确过渡中点仍可能出现短时叠影，衣裙内部装饰也会混合；没有宣称完全消除所有双轮廓。
 
-默认60fps；hardwareConcurrency不超过4时自动30fps，也可 init(...,{fps:30})。连续检测到20个超过14ms的绘制慢帧后降到30fps；高配无需重复探测切回。可通过 data-avatar-fps 观察实际绘制频率。帧率受宿主和设备影响，离线浏览器结果不代表所有低配机器。
+## 对齐与已知瑕疵
 
-## 验证与仍需宿主验收
+裁切时按连通组件保留完整发梢和尾巴，等比缩放并对齐鞋底。rig.turnaround.renderOffsetX记录为了容纳宽轮廓而加入的横向余量，运行时反向补偿共同转轴；spin另根据实际轮廓平滑留出安全余量，脚底锚点固定。
 
-本次不启动 DSH、QQ，不加载宿主 web/pet.js，不调用插件API；测试页面只提供 avatar.js/css、rig和透明素材的本地静态白名单。测试产物放系统临时目录。
+- maid / knit：四帧总身高和鞋底基线已对齐；侧面脚形/发束与正面存在自然透视差异。
+- winter（有瑕疵候选）：背面轮廓较宽，等比适配画布后身高约比其他方向小4.7%，鞋底仍对齐。背面顶部约y92，其他方向约y23–24；400px高测试中约低14px。完整上色和服装细节已完成，但比例一致性没有完全通过。
+- 四方向关键帧没有额外3/4方向插画；目前靠短时变形与混合过渡，转场精确中点仍有细节混叠风险。
 
-2026-11-01 实测：node --check pet/live2d/avatar.js 通过；本机 Chrome headless、280×400、DPR1，三套各19个动作每动作41个时间点全部非空、无脚本异常，最终舞蹈/左右攀爬另以81点复查均无画布边缘裁切。跳跃脚底上移约35px（旧版约17px）；转圈525ms为纯背面；攀爬超过3个循环仍持续，所有新动作可立即打断。分别模拟背面/左侧PNG返回404，仍为ready并正确回退。外部请求0。
+## Rig、打包与回退
 
-正面头、双耳、双手、脚的语义图层与原百分比热区均有像素交集。fps:60实测约60fps，模拟2核默认30fps，注入持续慢帧后也自动降30fps；这些只是在本机离线浏览器的观察。
+rig.turnaround包含frames的四个本地相对路径、source、frameHoldMs:220、crossfadeMs:100和renderOffsetX。frames的尺寸必须与rig.width/height相同且四张齐备；空图、无效路径、加载失败或像素分析失败只禁用本套新spin，初始化和其他动作继续可用。缺帧时spin回退正面轻摆，避免加载旧简化背面冒充完成；修复素材后重新init或刷新以清缓存。
 
-真实 Electron 窗口、边缘检测调用、热区点击事件和不同 DPI 下的宿主布局仍需维护者验收。这里只验证独立适配层动作、轮廓与固定热区坐标的关系，不宣称已验证真实宿主事件。
+诊断字段：data-avatar-spin-source为turnaround或front-fallback；data-avatar-view记录turnaround-front/right/back/left等当前方向。data-avatar-capabilities只列出素材完整支持的动作。
 
-## 来源
+[source/pack-turnaround.mjs](../assets/live2d/source/pack-turnaround.mjs) 仅做Alpha清理、组件裁切、等比重采样、对齐与安装，不绘画。需要本机已有sharp；可用WHALE_ASSET_PACKAGE指向已有安装。示例：
 
-原立绘的来源与授权沿用 [GENERATION.md](../assets/live2d/GENERATION.md)。本次新增视角按现有比例、衣装配色与鲸鱼特征离线补绘；原参考和角色权利保持原归属。适配代码沿用项目 MIT 许可。没有下载模型、修改 vendor 或生成 moc3。
+    node pet/assets/live2d/source/pack-turnaround.mjs --outfit maid --sheet ORIGINAL_CONTACT_SHEET.png --install
+
+--install默认直接写本套允许的正式素材目录，避免依赖C盘临时空间；不带--install则写系统临时目录，也可用--output指定预览输出。原联系表保留在Codex生成目录，不参与运行时。旧build-rigs.mjs和build-turnarounds.mjs属于上一版资源流程，不能直接重跑覆盖本次成果。
+
+## 原接口与动作
+
+init(container,{outfit})、play(action)、setOutfit(outfit)、setExpression(name)、setSpeaking(bool)、destroy()接口保持不变；ready可等待加载，maid/knit/winter均可换装。play立即打断旧动作，不排队；未知动作回idle，有限动作结束回idle。climb-left/right继续循环，直到其他play打断；不移动窗口或检测屏幕边缘。
+
+idle、happy、shy、spray、tail、ear、pout、sleepy、dance、jump、heart、eat、nod、shake、sit、ignore继续使用原增强分层；jump仍约900ms，包含蓄力、离地、滞空、落地回弹。climb仍使用上一版独立左右分层侧姿和交替手脚，本阶段没有替换该路径。旧layers、表情差分和PSD保留。
+
+默认60fps，hardwareConcurrency不超过4时自动30fps；可用init(...,{fps:30})指定。持续检测到慢帧也降到30fps，页面隐藏暂停RAF。较少动态效果偏好降低运动幅度。正面必需素材失败、context lost/恢复和换装失败的回退沿用原实现。
+
+## 验证范围
+
+本次使用独立本地静态测试页，不加载web/pet.js、不启动DSH或QQ、不调用插件API，也不访问数据目录。实际检查包括透明边缘/尺寸/脚底、spin帧顺序与中段背面、原动作回归、打断与缺帧回退；具体结果以本次测试报告为准。node --check pet/live2d/avatar.js通过。
+
+最终集中检查（2026-11-01，Chrome headless，280×400、DPR1）：三套均ready，19动作各21个采样均非空，无脚本异常及外部请求。spin三个服装均无边缘裁切，550ms为纯背面，1100ms后回idle；spin/jump/climb/eat均可立即被happy打断，攀爬超过3个循环仍持续，play('idle')终止。分别模拟背面帧404仍ready并回退正面轻摆。12帧均为真实Alpha，鞋底分别maid1456、knit1461、winter1462，front均与原sprite字节相同。
+
+本次保留原动作代码路径；集中扫描发现winter旧ear动作仍有6–8像素脚底触边，未扩大本阶段范围修改。新spin的边缘扫描通过；精确中点叠影和winter背面比例差异仍是已知问题。
+
+真实Electron透明窗口、宿主热区点击和不同设备的表现仍需维护者验收；运行时无外部联网依赖或新增npm包。

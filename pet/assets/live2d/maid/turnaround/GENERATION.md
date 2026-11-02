@@ -1,0 +1,12 @@
+# Maid 转圈帧来源
+
+2026-11-01，使用内置 `image_gen`，以本套 `sprite.png` 为角色和画风参考生成完整上色四视联系表，再裁切为独立帧。工具未返回可核验的后端模型版本号；没有用 SVG、程序绘画或镜像生成侧/背面。
+
+- 正面：直接复制 `../sprite.png`，字节一致。
+- 右侧、背面、左侧：从原生 Alpha 联系表 `exec-5d25d1cb-9de7-464e-bc87-cacd7805e070.png` 裁切；原稿保留于本次 Codex `generated_images/01a19646-2cb0-7903-b81d-c773339ce540/`。
+- 选用的是原生透明稿；纯绿候选没有用于正式素材。透明像素的残留 RGB 被清零，保留抗锯齿覆盖率；不重绘角色。
+- `source/pack-turnaround.mjs` 负责连通组件分离、等比缩放、鞋底基线对齐和安装。`rig.turnaround.renderOffsetX` 抵消为容纳卷发/尾巴而加入的横向余量。
+
+最终联系表编辑提示词（原文；输入1为初次四视稿，输入2为原 `sprite.png`）：
+
+> Edit target: image 1, the four-view maid turnaround sheet. Image 2 is authoritative original sprite for character identity and rendering style. Keep all four full-color painted anime characters, exact outfit details, hair highlights and volume, body/head proportions, poses and facing directions already established in image 1. MAKE TWO TECHNICAL CORRECTIONS ONLY: (1) REMOVE THE ENTIRE DARK BLUE/GRAY BACKGROUND and all ambient gradients/glow/shadow, output GENUINELY TRANSPARENT ALPHA OUTSIDE CHARACTERS, not a dark checkerboard or colored backdrop. Absolutely no floor, shadow, glow, matte fringe or background paint. (2) Re-space four characters in clean 2x2 grid with generous transparent gutters: each character confined fully inside its own quadrant, no tail/hair crosses into neighbor's quadrant, no overlap, equal character height and identical soles baseline within each cell. Shrink all four equally if needed to provide at least 60px clear vertical center gutter and 60px clear horizontal center gutter at 1024x1536; better high-res 2048x3072 if possible. Top left front, top right true right-facing profile, bottom left authentic faceless back, bottom right true left-facing profile. Full body hair tuft and shoes completely visible. Preserve rich detailed raster anime rendering equal to image 2, never simplify to vector/line art. In back view keep detailed navy maid rear dress with white apron straps and large waist bow, gold shell/floral hem embroidery, white lace petticoat and socks, rear shoes, indigo/cyan layered long curls. Back contains no face, eyes, mouth or front apron graphic. The blue side hair bow stays front screen-right, right-profile rear side, back screen-left, absent on left profile. No text, labels, frames, watermark, extra limbs, double outlines. This must be a transparent sprite sheet ready to crop, not an illustration printed on a dark surface.

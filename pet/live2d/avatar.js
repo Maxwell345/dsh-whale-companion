@@ -7,11 +7,12 @@
   var OUTFITS = ['maid', 'knit', 'winter']
   var FALLBACK = { maid: 'maid.png', knit: 'knit.webp', winter: 'winter.png' }
 
-  var DURATIONS = { idle: Infinity, happy: 1600, shy: 2400, spin: 1050, spray: 2200, tail: 1700, ear: 1600, pout: 2600, sleepy: 6200, dance: 4200, jump: 900, heart: 2800, eat: 3800, nod: 1400, shake: 1500, sit: 4200, ignore: 3200, 'climb-left': Infinity, 'climb-right': Infinity }
+  var DURATIONS = { idle: Infinity, happy: 1600, shy: 2400, spin: 1100, spray: 2200, tail: 1700, ear: 1600, pout: 2600, sleepy: 6200, dance: 4200, jump: 900, heart: 2800, eat: 3800, nod: 1400, shake: 1500, sit: 4200, ignore: 3200, 'climb-left': Infinity, 'climb-right': Infinity }
   var ACTION_EXPRESSION = { happy: 'happy', shy: 'shy', spray: 'surprised', tail: 'surprised', ear: 'pout', pout: 'pout', sleepy: 'sleepy', dance: 'happy', jump: 'happy', heart: 'shy', eat: 'eat', ignore: 'pout' }
   var POSE_KEYS = ['x', 'y', 'r', 'sx', 'sy', 'head', 'headY', 'tail', 'earL', 'earR', 'hair', 'armL', 'armR', 'legL', 'legR', 'armLY', 'armRY', 'legLY', 'legRY', 'skirt', 'camera']
   var PI = Math.PI
-  var TURN_VIEWS = ['front', 'right', 'back', 'left', 'front']
+  var TURN_VIEWS = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']
+  var LEGACY_TURN_VIEWS = ['front', 'right', 'back', 'left', 'front']
   var FRONT_LIMITS = { arm: 0.02, leg: 0.07, hair: 0.002, ear: 0.02, tail: 0.045, skirt: 0.025 }
   var VIEW_LIMITS = { arm: 0.32, leg: 0.22, hair: 0.006, ear: 0.065, tail: 0.15, skirt: 0.04 }
   function smooth(t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t) }
@@ -89,6 +90,8 @@
       this.canvas = canvas
       this._viewSurface = document.createElement('canvas')
       this._blendSurface = document.createElement('canvas')
+      this._headSurface = document.createElement('canvas')
+      this._headMask = document.createElement('canvas')
       try { this.ctx = canvas.getContext('2d', { alpha: true }) } catch (_) { this.ctx = null }
       if (!document.getElementById('whale-avatar-css')) {
         var link = document.createElement('link')
@@ -165,7 +168,52 @@
           try { views[name] = { name: name, layers: await loadLayers(view.layers), maxAngles: view.maxAngles || {} } }
           catch (_) { /* Front-facing actions remain available. */ }
         }))
-        return { width: data.width, height: data.height, bounds: data.bounds || [0, 0, data.width, data.height], layers: layers, views: views, face: data.face || null, maxAngles: data.maxAngles || {}, headTravel: Number(data.headTravel) || 3, articulated: data.articulation === 'overlap' }
+        var loadTurnaround = async (spec, frameNames, frameWidth, frameHeight) => {
+          var framePaths = spec && spec.frames
+          if (!framePaths || !frameNames.every(function (name) {
+            var src = framePaths[name]
+            return typeof src === 'string' && /^[a-zA-Z0-9_./-]+\.(png|webp)$/.test(src) && !src.includes('..') && !src.startsWith('/')
+          })) return null
+          var frames = await Promise.all(frameNames.map(async function (name) {
+            try {
+              var image = await imageFile(folder + framePaths[name], controller.signal)
+              if (image.naturalWidth !== frameWidth || image.naturalHeight !== frameHeight) return null
+              return { name: name, frame: image, width: image.naturalWidth, height: image.naturalHeight }
+            } catch (_) { return null }
+          }))
+          if (!frames.every(Boolean)) return null
+          var turnaround = {}
+          var analysis = document.createElement('canvas')
+          try {
+            analysis.width = frameWidth; analysis.height = frameHeight
+            var analysisContext = analysis.getContext('2d', { willReadFrequently: true })
+            for (var frameIndex = 0; frameIndex < frames.length; frameIndex++) {
+              var frame = frames[frameIndex]
+              var offset = spec.renderOffsetX && spec.renderOffsetX[frame.name]
+              frame.offsetX = (data.width - frame.width) * 0.5 + (Number.isFinite(offset) ? Math.max(-96, Math.min(96, offset)) : 0)
+              var profile = this._frameProfile(frame.frame, frame.offsetX, frame.width, frame.height, analysisContext)
+              frame.profile = profile.rows
+              frame.bounds = profile.bounds
+              turnaround[frameNames[frameIndex]] = frame
+            }
+            return turnaround
+          } catch (_) {
+            // A missing, unreadable or empty optional set leaves the other
+            // complete set available, and never breaks the front rig.
+            return null
+          } finally {
+            analysis.width = analysis.height = 1
+          }
+        }
+        var twelveSpec = data.turnaround12
+        var twelveOrder = twelveSpec && twelveSpec.frameOrder
+        var validTwelve = twelveSpec && twelveSpec.frameCount === TURN_VIEWS.length && Number.isInteger(twelveSpec.frameWidth) && twelveSpec.frameWidth > 0 && twelveSpec.frameWidth <= 4096 && twelveSpec.frameHeight === data.height && Array.isArray(twelveOrder) && twelveOrder.length === TURN_VIEWS.length && TURN_VIEWS.every(function (name, index) { return twelveOrder[index] === name })
+        var turnarounds = await Promise.all([
+          loadTurnaround(data.turnaround, ['front', 'right', 'back', 'left'], data.width, data.height),
+          validTwelve ? loadTurnaround(twelveSpec, TURN_VIEWS, twelveSpec.frameWidth, twelveSpec.frameHeight) : Promise.resolve(null)
+        ])
+        var turnaround12 = turnarounds[1] ? { frames: turnarounds[1], frameOrder: TURN_VIEWS, frameWidth: twelveSpec.frameWidth, frameHeight: twelveSpec.frameHeight, durationMs: DURATIONS.spin, crossfadeMs: 40 } : null
+        return { width: data.width, height: data.height, bounds: data.bounds || [0, 0, data.width, data.height], layers: layers, views: views, turnaround: turnarounds[0], turnaround12: turnaround12, face: data.face || null, maxAngles: data.maxAngles || {}, headTravel: Number(data.headTravel) || 3, articulated: data.articulation === 'overlap' }
 
       })()
       this._cache.set(outfit, promise)
@@ -196,13 +244,27 @@
           this._fadeAt = performance.now()
         }
         this.rig = rig
-        for (var surface of [this._viewSurface, this._blendSurface]) {
+        for (var surface of [this._viewSurface, this._blendSurface, this._headSurface]) {
           if (surface.width !== rig.width + 192) surface.width = rig.width + 192
           if (surface.height !== rig.height + 192) surface.height = rig.height + 192
         }
+        var rx = rig.width * 0.27, ry = rig.height * 0.145
+        this._headMask.width = Math.ceil(rx * 2)
+        this._headMask.height = Math.ceil(ry * 2)
+        var mask = this._headMask.getContext('2d')
+        mask.setTransform(rx, 0, 0, ry, rx, ry)
+        var gradient = mask.createRadialGradient(0, 0, 0, 0, 0, 1)
+        gradient.addColorStop(0, '#fff')
+        gradient.addColorStop(0.82, '#fff')
+        gradient.addColorStop(1, 'rgba(255,255,255,0)')
+        mask.fillStyle = gradient
+        mask.fillRect(-1, -1, 2, 2)
+        this._headMaskX = 96 + rig.width * 0.5 - rx
+        this._headMaskY = 96 + rig.height * 0.38 - ry
         this.container.dataset.avatarOutfit = outfit
         this.container.dataset.avatarState = 'ready'
-        this.container.dataset.avatarCapabilities = ['jump', rig.views.back && rig.views.left && rig.views.right ? 'spin' : '', rig.views.left ? 'climb-left' : '', rig.views.right ? 'climb-right' : ''].filter(Boolean).join(' ')
+        this.container.dataset.avatarCapabilities = ['jump', rig.turnaround12 || rig.turnaround ? 'spin' : '', rig.views.left ? 'climb-left' : '', rig.views.right ? 'climb-right' : ''].filter(Boolean).join(' ')
+        this.container.dataset.avatarSpinSource = rig.turnaround12 ? 'turnaround12' : rig.turnaround ? 'turnaround' : 'front-fallback'
         this.canvas.setAttribute('aria-label', '小肥鱼，' + ({ maid: '经典女仆装', knit: '针织帽日常装', winter: '鲸鱼冬装' })[outfit])
         if (this._contextLost) {
           this._fallback(outfit)
@@ -264,6 +326,17 @@
         this._jumpScale = Math.max(0.01, Math.min((this._width - 18) / bounds[2], (this._height - 27) / (bounds[3] + 170)))
         this._originX = (this._width - bounds[2] * this._scale) / 2 - bounds[0] * this._scale
         this._originY = this._height - 2 - (bounds[1] + bounds[3]) * this._scale
+        this._turnFit = 1
+        if (this.rig.turnaround) {
+          var center = this._originX + this.rig.width * 0.5 * this._scale
+          for (var name of ['front', 'right', 'back', 'left']) {
+            var frameBounds = this.rig.turnaround[name].bounds
+            var left = (this.rig.width * 0.5 - frameBounds[0]) * this._scale
+            var right = (frameBounds[1] - this.rig.width * 0.5) * this._scale
+            if (left > 0) this._turnFit = Math.min(this._turnFit, Math.max(1, center - 12) / left)
+            if (right > 0) this._turnFit = Math.min(this._turnFit, Math.max(1, this._width - center - 12) / right)
+          }
+        }
       }
       this._schedule()
     }
@@ -338,10 +411,12 @@
           p.tail -= wave * 0.13
           break
         case 'spin':
-          // The view rig supplies actual rear/profile paintings. Width stays
-          // positive and close to its original value throughout the turn.
-          p.x = Math.sin(u * PI * 2) * 9; p.y = -wave * 8
-          p.r += Math.sin(u * PI * 2) * 0.012
+          // Complete painted directions supply the turn; transforms only add
+          // a restrained follow-through, never a mirrored or flattened back.
+          p.camera = wave * 0.12
+          p.x = Math.sin(u * PI * 2) * 4; p.y = -wave * 3
+          p.r += Math.sin(u * PI * 2) * 0.004
+          p.sx += Math.sin(u * PI * 4) * 0.003
           p.hair += swing * 0.008; p.skirt = Math.sin(u * PI * 2) * 0.025
           p.armL -= wave * 0.025; p.armR += wave * 0.025
           break
@@ -460,6 +535,18 @@
         else p[key] *= amount * gain
         if (this._blendAt && now - this._blendAt < 130) p[key] = this._from[key] + (p[key] - this._from[key]) * smooth((now - this._blendAt) / 130)
       }
+      if (this.action === 'spin') {
+        if (this.rig.turnaround12) {
+          // The wider paintings already preserve the complete silhouette at
+          // the front rig's height. Keep this turn at a fixed scale/foot line;
+          // only the bitmap's small hair/cloth follow-through remains active.
+          p.sx = p.sy = 1
+          p.camera = p.x = p.y = p.r = p.head = p.headY = 0
+        } else if (this.rig.turnaround) {
+          var fit = 1 + (this._turnFit - 1) * smooth(Math.min(u / 0.1, (1 - u) / 0.1))
+          p.sx *= fit; p.sy *= fit
+        }
+      }
       var blink = (now - this._started) % 4700
       p.eye = blink > 4230 && blink < 4390 ? Math.abs(blink - 4310) / 80 : 1
       if (p.emotion === 'happy') p.eye = 0
@@ -500,7 +587,7 @@
       ctx.scale(p.sx, p.sy)
       ctx.translate(-cx, -cy)
       this._selectViews(p.progress)
-      if (this._viewMix > 0 || fade < 1) this._drawCompositeViews(fade)
+      if (this._viewMix > 0 || fade < 1 || (this._viewA && this._viewA.frame)) this._drawCompositeViews(fade)
       else this._drawView(this._viewA, 1)
       ctx.globalAlpha = fade
       if (!this._viewA && !this._viewB) this._effects(t)
@@ -511,32 +598,52 @@
       var views = this.rig.views
       this._viewA = this._viewB = null
       this._viewMix = 0
+      this._viewLinearMix = 0
+      this._twelveTurn = false
       var name = 'front'
       if (this.action === 'climb-left' || this.action === 'climb-right') {
         name = this.action === 'climb-left' ? 'left' : 'right'
         this._viewA = views[name] || null
         if (!this._viewA) name = 'front-fallback'
       } else if (this.action === 'spin') {
-        if (views.back && views.left && views.right) {
-          // Five facing keys describe one full turn. Short blends only join
-          // adjacent paintings; the entire middle interval is the rear alone.
-          var quadrant = Math.min(4, Math.floor(progress * 4 + 0.5))
-          var names = TURN_VIEWS
+        var turnaround = this.rig.turnaround
+        var turnaround12 = this.rig.turnaround12
+        if (turnaround12) {
+          // Twelve equal slots cover one turn. Only the final 40ms of each
+          // slot dissolves linearly to the next painting, including 11 -> 00.
+          var elapsed12 = Math.max(0, Math.min(turnaround12.durationMs, progress * turnaround12.durationMs))
+          var slot = turnaround12.durationMs / TURN_VIEWS.length
+          var index = Math.min(TURN_VIEWS.length - 1, Math.floor(elapsed12 / slot))
+          var next = (index + 1) % TURN_VIEWS.length
+          this._viewA = turnaround12.frames[TURN_VIEWS[index]]
+          this._viewLinearMix = Math.max(0, Math.min(1, (elapsed12 - (index + 1) * slot + turnaround12.crossfadeMs) / turnaround12.crossfadeMs))
+          this._viewMix = this._viewLinearMix
+          if (this._viewMix > 0) this._viewB = turnaround12.frames[TURN_VIEWS[next]]
+          this._twelveTurn = true
+          name = 'turnaround12-' + (this._viewMix >= 0.5 ? this._viewB.name : this._viewA.name)
+        } else if (turnaround) {
+          // Five 220ms facing slots, with a 100ms blend centered on each
+          // boundary. The middle 120ms is the complete rear painting alone.
+          var elapsed = progress * DURATIONS.spin
+          var quadrant = Math.min(4, Math.floor(elapsed / 220))
+          var names = LEGACY_TURN_VIEWS
           name = names[quadrant]
-          this._viewA = views[name] || null
-          var boundary = (quadrant + 0.5) / 4
-          var blendWidth = 0.015
-          if (quadrant < 4 && progress > boundary - blendWidth) {
-            this._viewB = views[names[quadrant + 1]] || null
-            this._viewMix = 0.5 * smooth((progress - boundary + blendWidth) / blendWidth)
+          this._viewA = turnaround[name]
+          var boundary = (quadrant + 1) * 220
+          if (quadrant < 4 && elapsed > boundary - 50) {
+            this._viewB = turnaround[names[quadrant + 1]]
+            this._viewLinearMix = (elapsed - boundary + 50) / 100
+            this._viewMix = smooth(this._viewLinearMix)
           } else if (quadrant > 0) {
-            boundary = (quadrant - 0.5) / 4
-            if (progress < boundary + blendWidth) {
-              this._viewA = views[names[quadrant - 1]] || null
-              this._viewB = views[name] || null
-              this._viewMix = 0.5 + 0.5 * smooth((progress - boundary) / blendWidth)
+            boundary = quadrant * 220
+            if (elapsed < boundary + 50) {
+              this._viewA = turnaround[names[quadrant - 1]]
+              this._viewB = turnaround[name]
+              this._viewLinearMix = (elapsed - boundary + 50) / 100
+              this._viewMix = smooth(this._viewLinearMix)
             }
           }
+          name = 'turnaround-' + (this._viewMix >= 0.5 ? this._viewB.name : this._viewA.name)
         } else name = 'front-fallback'
       }
       this.container.dataset.avatarView = name
@@ -546,9 +653,125 @@
       if (alpha <= 0) return
       this._drawingView = view
       this.ctx.globalAlpha = alpha
-      var layers = view ? view.layers : this.rig.layers
-      for (var i = 0; i < layers.length; i++) this._drawLayer(layers[i])
+      if (view && view.frame) this._drawTurnaroundFrame(view)
+      else {
+        var layers = view ? view.layers : this.rig.layers
+        for (var i = 0; i < layers.length; i++) this._drawLayer(layers[i])
+      }
       this._drawingView = null
+    }
+
+    _frameShift(y) {
+      var p = this._pose
+      var v = y / this.rig.height
+      var head = 1 - smooth((v - 0.34) / 0.18)
+      var hair = Math.sin(v * PI) * (1 - smooth((v - 0.86) / 0.1))
+      var fin = Math.max(0, 1 - Math.abs(v - 0.37) / 0.11)
+      var skirt = Math.max(0, 1 - Math.abs(v - 0.76) / 0.13)
+      var tail = Math.max(0, 1 - Math.abs(v - 0.79) / 0.12)
+      return p.head * (this.rig.height * 0.48 - y) * 0.35 * head + p.hair * 90 * hair + (p.earL - p.earR) * 12 * fin + p.skirt * 45 * skirt + p.tail * 18 * tail
+    }
+
+    _frameProfile(frame, offset, width, height, ctx) {
+      // Read each texture once at load, never in the animation loop. A small
+      // smoothed profile keeps wispy hair alpha from producing a jagged morph.
+      ctx.clearRect(0, 0, width, height)
+      ctx.drawImage(frame, 0, 0)
+      var pixels = ctx.getImageData(0, 0, width, height).data
+      var rows = new Float32Array(height * 2)
+      var occupied = false
+      var minX = width, maxX = -1
+      for (var y = 0; y < height; y++) {
+        var left = width, right = -1
+        for (var x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] > 16) {
+          if (x < left) left = x
+          right = x
+        }
+        rows[y * 2] = left; rows[y * 2 + 1] = right
+        if (right >= left) occupied = true
+        minX = Math.min(minX, left); maxX = Math.max(maxX, right)
+      }
+      if (!occupied) throw new Error('empty turnaround frame')
+      var points = new Float32Array(97 * 2)
+      var radius = Math.ceil(height / 192)
+      for (var i = 0; i <= 96; i++) {
+        var center = Math.round(height * i / 96)
+        var min = width, max = -1
+        for (var row = Math.max(0, center - radius); row < Math.min(height, center + radius + 1); row++) {
+          if (rows[row * 2 + 1] < rows[row * 2]) continue
+          min = Math.min(min, rows[row * 2]); max = Math.max(max, rows[row * 2 + 1])
+        }
+        points[i * 2] = min; points[i * 2 + 1] = max
+      }
+      // Empty rows above the top tuft/below the soles inherit their nearest
+      // occupied row, so a transparent margin cannot generate a huge scale.
+      for (var pass = 0; pass < 2; pass++) for (i = 0; i <= 96; i++) {
+        var index = pass ? 96 - i : i
+        var previous = pass ? index + 1 : index - 1
+        if (points[index * 2 + 1] < points[index * 2] && previous >= 0 && previous <= 96 && points[previous * 2 + 1] >= points[previous * 2]) {
+          points[index * 2] = points[previous * 2]; points[index * 2 + 1] = points[previous * 2 + 1]
+        }
+      }
+      var filtered = new Float32Array(points.length)
+      for (i = 0; i <= 96; i++) {
+        var total = 0, l = 0, r = 0
+        for (var d = -2; d <= 2; d++) {
+          index = Math.max(0, Math.min(96, i + d))
+          var weight = 3 - Math.abs(d)
+          l += points[index * 2] * weight; r += points[index * 2 + 1] * weight; total += weight
+        }
+        filtered[i * 2] = l / total + offset
+        filtered[i * 2 + 1] = r / total + offset
+      }
+      for (y = 0; y < height; y++) {
+        var position = y * 96 / height
+        index = Math.min(95, Math.floor(position))
+        var fraction = position - index
+        rows[y * 2] = filtered[index * 2] + (filtered[(index + 1) * 2] - filtered[index * 2]) * fraction
+        rows[y * 2 + 1] = filtered[index * 2 + 1] + (filtered[(index + 1) * 2 + 1] - filtered[index * 2 + 1]) * fraction
+      }
+      return { rows: rows, bounds: [minX + offset, maxX + offset] }
+    }
+
+    _drawTurnaroundFrame(view) {
+      // Gently bend the painted bitmap in continuous horizontal bands. This
+      // preserves its shading/detail and the existing secondary-motion phases
+      // without drawing old front parts over a rear painting. Integer source
+      // rows are flattened at 1:1 before final scaling, avoiding band seams.
+      var ctx = this.ctx
+      var width = view.width, height = view.height
+      var mix = this._viewMix
+      if (mix > 0 && this._viewA && this._viewB && this._viewA.frame && this._viewB.frame) {
+        var a = this._viewA.profile, b = this._viewB.profile, own = view.profile
+        // Match the two painted silhouettes to shared interpolated bounds.
+        // All horizontal scales stay positive and close to one; alpha still
+        // crossfades for its complete interval; pure facings stay untouched.
+        for (var row = 0; row < height; row += 2) {
+          var k = row * 2
+          var l = a[k] + (b[k] - a[k]) * mix
+          var r = a[k + 1] + (b[k + 1] - a[k + 1]) * mix
+          var span = Math.max(1, own[k + 1] - own[k])
+          var sx = Math.max(0.75, Math.min(1.3, (r - l) / span))
+          var dx = (l + r) * 0.5 - sx * ((own[k] + own[k + 1]) * 0.5 - view.offsetX) + this._frameShift(row)
+          var h = Math.min(2, height - row)
+          ctx.drawImage(view.frame, 0, row, width, h, dx, row, width * sx, h)
+        }
+        return
+      }
+      ctx.save()
+      ctx.translate(view.offsetX, 0)
+      var top = 0, topShift = this._frameShift(0)
+      for (var i = 1; i <= 24; i++) {
+        var bottom = Math.round(height * i / 24)
+        var bottomShift = this._frameShift(bottom)
+        var slope = (bottomShift - topShift) / (bottom - top)
+        ctx.save()
+        ctx.transform(1, 0, slope, 1, topShift - slope * top, 0)
+        ctx.drawImage(view.frame, 0, top, width, bottom - top, 0, top, width, bottom - top)
+        ctx.restore()
+        top = bottom; topShift = bottomShift
+      }
+      ctx.restore()
     }
 
     _drawCompositeViews(alpha) {
@@ -558,6 +781,14 @@
       var flat = this._viewSurface.getContext('2d')
       var blend = this._blendSurface.getContext('2d')
       var width = this._viewSurface.width, height = this._viewSurface.height
+      var head = this._headSurface.getContext('2d')
+      var fastHead = !this._twelveTurn && this._viewMix > 0 && this._viewA && this._viewB && this._viewA.frame && this._viewB.frame
+      if (fastHead) {
+        head.setTransform(1, 0, 0, 1, 0, 0)
+        head.clearRect(0, 0, width, height)
+        head.globalCompositeOperation = 'lighter'
+      }
+      var headMix = smooth((this._viewLinearMix - 0.375) / 0.25)
       blend.setTransform(1, 0, 0, 1, 0, 0)
       blend.clearRect(0, 0, width, height)
       blend.globalCompositeOperation = 'lighter'
@@ -569,6 +800,23 @@
         this._drawView(i ? this._viewB : this._viewA, 1)
         blend.globalAlpha = this._viewMix > 0 ? (i ? this._viewMix : 1 - this._viewMix) : 1
         blend.drawImage(this._viewSurface, 0, 0)
+        if (fastHead) {
+          head.globalAlpha = i ? headMix : 1 - headMix
+          head.drawImage(this._viewSurface, 0, 0)
+        }
+      }
+      if (fastHead) {
+        // Keep the silhouette/cloth dissolve at 100ms, but hand over the inner
+        // face texture continuously in 25ms to shorten duplicated-eye ghosts.
+        // The soft mask only changes mixing weights of the original paintings.
+        head.globalAlpha = 1
+        head.globalCompositeOperation = 'destination-in'
+        head.drawImage(this._headMask, this._headMaskX, this._headMaskY)
+        blend.globalAlpha = 1
+        blend.globalCompositeOperation = 'destination-out'
+        blend.drawImage(this._headMask, this._headMaskX, this._headMaskY)
+        blend.globalCompositeOperation = 'lighter'
+        blend.drawImage(this._headSurface, 0, 0)
       }
       this.ctx = target
       target.globalAlpha = alpha
@@ -818,8 +1066,8 @@
         for (var key of Object.keys(this.container.dataset)) if (key.startsWith('avatar')) delete this.container.dataset[key]
       }
       if (this.canvas) { this.canvas.width = 1; this.canvas.height = 1 }
-      for (var surface of [this._viewSurface, this._blendSurface]) if (surface) { surface.width = 1; surface.height = 1 }
-      this._viewSurface = this._blendSurface = null
+      for (var surface of [this._viewSurface, this._blendSurface, this._headSurface, this._headMask]) if (surface) { surface.width = 1; surface.height = 1 }
+      this._viewSurface = this._blendSurface = this._headSurface = this._headMask = null
       if (this._snapshot) { this._snapshot.width = 1; this._snapshot.height = 1; this._snapshot = null }
       this.container = this.canvas = this.ctx = this.rig = this._fallbackImage = null
       this._viewA = this._viewB = this._drawingView = null

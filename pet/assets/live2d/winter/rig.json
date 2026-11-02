@@ -810,5 +810,22 @@
       "climbing": true,
       "art": "offline-authored-simplified-turnaround"
     }
+  },
+  "turnaround": {
+    "frames": {
+      "front": "turnaround/front.png",
+      "right": "turnaround/right.png",
+      "back": "turnaround/back.png",
+      "left": "turnaround/left.png"
+    },
+    "source": "builtin-imagegen",
+    "frameHoldMs": 220,
+    "crossfadeMs": 100,
+    "renderOffsetX": {
+      "front": 0,
+      "right": -5.86,
+      "back": -15.8,
+      "left": 6.66
+    }
   }
 }

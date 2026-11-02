@@ -855,5 +855,71 @@
       "climbing": true,
       "art": "offline-authored-simplified-turnaround"
     }
+  },
+  "turnaround": {
+    "frames": {
+      "front": "turnaround/front.png",
+      "right": "turnaround/right.png",
+      "back": "turnaround/back.png",
+      "left": "turnaround/left.png"
+    },
+    "source": "builtin-imagegen",
+    "frameHoldMs": 220,
+    "crossfadeMs": 100,
+    "renderOffsetX": {
+      "front": 0,
+      "right": -29.16,
+      "back": -38.51,
+      "left": -0.51
+    }
+  },
+  "turnaround12": {
+    "frames": {
+      "10": "turnaround12/10-300.png",
+      "11": "turnaround12/11-330.png",
+      "00": "turnaround12/00-front.png",
+      "01": "turnaround12/01-030.png",
+      "02": "turnaround12/02-060.png",
+      "03": "turnaround12/03-090.png",
+      "04": "turnaround12/04-120.png",
+      "05": "turnaround12/05-150.png",
+      "06": "turnaround12/06-180.png",
+      "07": "turnaround12/07-210.png",
+      "08": "turnaround12/08-240.png",
+      "09": "turnaround12/09-270.png"
+    },
+    "frameOrder": [
+      "00",
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11"
+    ],
+    "frameCount": 12,
+    "frameWidth": 1100,
+    "frameHeight": 1494,
+    "durationMs": 1100,
+    "crossfadeMs": 40,
+    "renderOffsetX": {
+      "10": -0.5,
+      "11": 0,
+      "00": 0,
+      "01": 0,
+      "02": -0.5,
+      "03": 0,
+      "04": 0,
+      "05": 0,
+      "06": -0.5,
+      "07": 0,
+      "08": -0.5,
+      "09": 0
+    }
   }
 }

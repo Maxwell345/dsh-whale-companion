@@ -1,0 +1,169 @@
+{
+  "reviewOnly": true,
+  "width": 2048,
+  "height": 2304,
+  "cell": [
+    512,
+    768
+  ],
+  "bodyHeight": 552,
+  "footBaseline": 704,
+  "measurements": [
+    {
+      "angle": 0,
+      "source": "maid/sprite.png",
+      "scale": 0.3857442348008386,
+      "cellBounds": [
+        68,
+        153,
+        464,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.37
+    },
+    {
+      "angle": 30,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-b62c6971-d65f-4782-b110-7c5f35e3c5ee.png",
+      "scale": 0.9108910891089109,
+      "cellBounds": [
+        61,
+        153,
+        430,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.98
+    },
+    {
+      "angle": 60,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-b62c6971-d65f-4782-b110-7c5f35e3c5ee.png",
+      "scale": 0.9078947368421053,
+      "cellBounds": [
+        52,
+        153,
+        381,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.45
+    },
+    {
+      "angle": 90,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-b62c6971-d65f-4782-b110-7c5f35e3c5ee.png",
+      "scale": 0.9500860585197934,
+      "cellBounds": [
+        25,
+        153,
+        381,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.88
+    },
+    {
+      "angle": 120,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-b62c6971-d65f-4782-b110-7c5f35e3c5ee.png",
+      "scale": 0.9468267581475128,
+      "cellBounds": [
+        110,
+        153,
+        449,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.87
+    },
+    {
+      "angle": 150,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-b62c6971-d65f-4782-b110-7c5f35e3c5ee.png",
+      "scale": 0.9484536082474226,
+      "cellBounds": [
+        83,
+        153,
+        446,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.13
+    },
+    {
+      "angle": 180,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9034369885433715,
+      "cellBounds": [
+        73,
+        153,
+        442,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.31
+    },
+    {
+      "angle": 210,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9004893964110929,
+      "cellBounds": [
+        108,
+        153,
+        461,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.72
+    },
+    {
+      "angle": 240,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9049180327868852,
+      "cellBounds": [
+        122,
+        153,
+        445,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.85
+    },
+    {
+      "angle": 270,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9108910891089109,
+      "cellBounds": [
+        124,
+        153,
+        486,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.02
+    },
+    {
+      "angle": 300,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9064039408866995,
+      "cellBounds": [
+        116,
+        153,
+        465,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 255.79
+    },
+    {
+      "angle": 330,
+      "source": "C:\\Users\\THUNOEROBOT\\.codex\\generated_images\\01a19646-2cb0-7903-b81d-c773339ce540\\exec-bc731c2e-bf40-4638-a159-916a81c65054.png",
+      "scale": 0.9049180327868852,
+      "cellBounds": [
+        80,
+        153,
+        450,
+        704
+      ],
+      "footBaseline": 704,
+      "footCenterX": 256.27
+    }
+  ]
+}
