@@ -9,6 +9,12 @@ let win = null
 let closing = false
 let dragState = null
 let dragTimer = null
+let climbSide = ''
+let climbTimer = null
+let avatarAxisX = 190
+let wallInsetLeft = 0
+let wallInsetRight = 0
+const CLIMB_SPEED = 36 // px per second
 
 function createWindow() {
   const url = process.env.WHALE_URL || ''
@@ -19,6 +25,9 @@ function createWindow() {
   }
   const width = Number(process.env.WHALE_WIDTH || 380)
   const height = Number(process.env.WHALE_HEIGHT || 600)
+  avatarAxisX = Math.round(width / 2)
+  wallInsetLeft = 0
+  wallInsetRight = width
   const work = screen.getPrimaryDisplay().workArea
   const x = Number(process.env.WHALE_X || (work.x + work.width - width - 40))
   const y = Number(process.env.WHALE_Y || (work.y + Math.round((work.height - height) / 2)))
@@ -62,8 +71,11 @@ function createWindow() {
   win.on('closed', () => {
     win = null
     dragState = null
+    climbSide = ''
     if (dragTimer) clearInterval(dragTimer)
     dragTimer = null
+    if (climbTimer) clearInterval(climbTimer)
+    climbTimer = null
   })
   win.loadURL(url).catch((err) => console.error('[whale-shell] load failed', err))
 
@@ -147,8 +159,102 @@ function stopDragTimer() {
   dragState = null
 }
 
+function workAreaFor(bounds) {
+  let display
+  try { display = screen.getDisplayMatching(bounds) } catch { display = screen.getPrimaryDisplay() }
+  return display.workArea
+}
+
+// The avatar's center line is the wall contact. At the threshold the window is
+// deliberately allowed to sit half outside the screen.
+function edgeSideFor(bounds) {
+  const work = workAreaFor(bounds)
+  const axis = bounds.x + avatarAxisX
+  if (axis <= work.x) return 'left'
+  if (axis >= work.x + work.width) return 'right'
+  return ''
+}
+
+function stopClimb(sendIdle = true) {
+  if (climbTimer) clearInterval(climbTimer)
+  climbTimer = null
+  const had = Boolean(climbSide)
+  climbSide = ''
+  if (had && sendIdle && win && !win.isDestroyed()) {
+    try { win.webContents.send('whale:climb', '') } catch {}
+  }
+}
+
+function startClimb(side) {
+  if (!win || win.isDestroyed()) return
+  stopDragTimer()
+  if (climbSide === side && climbTimer) return
+  if (climbTimer) clearInterval(climbTimer)
+
+  const work = workAreaFor(win.getBounds())
+  const b = win.getBounds()
+  const width = b.width
+  const height = b.height
+  // The centerline crossing the edge is only the trigger. Align the painted
+  // body edge to the screen edge, not the window rectangle's transparent margin.
+  const x = side === 'left' ? work.x - wallInsetLeft : work.x + work.width - wallInsetRight
+  win.setBounds({ x: Math.round(x), y: b.y, width, height }, false)
+  climbSide = side
+  try { win.webContents.send('whale:climb', side) } catch {}
+
+  let last = Date.now()
+  climbTimer = setInterval(() => {
+    if (!win || win.isDestroyed() || climbSide !== side) {
+      if (climbTimer) clearInterval(climbTimer)
+      climbTimer = null
+      return
+    }
+    const now = Date.now()
+    const dt = Math.min(120, now - last)
+    last = now
+    const bounds = win.getBounds()
+    const area = workAreaFor(bounds)
+    const y = Math.max(area.y, bounds.y - CLIMB_SPEED * dt / 1000)
+    const nextX = side === 'left' ? area.x - wallInsetLeft : area.x + area.width - wallInsetRight
+    const nextY = Math.round(y)
+    if (bounds.x !== Math.round(nextX) || bounds.y !== nextY || bounds.width !== width || bounds.height !== height) {
+      win.setBounds({ x: Math.round(nextX), y: nextY, width, height }, false)
+    }
+    // Reached the top: keep the climbing loop, but stop moving up.
+    if (nextY <= area.y) {
+      if (climbTimer) clearInterval(climbTimer)
+      climbTimer = null
+    }
+  }, 33)
+}
+
+function updateClimbSide(bounds) {
+  if (!win || win.isDestroyed()) return
+  const next = edgeSideFor(bounds)
+  if (next === climbSide) return
+  if (climbSide) stopClimb()
+  if (next) startClimb(next)
+}
+
+ipcMain.on('whale:axis', (_event, x) => {
+  if (!win || win.isDestroyed()) return
+  const b = win.getBounds()
+  const n = Number(x)
+  if (Number.isFinite(n)) avatarAxisX = Math.max(0, Math.min(b.width, n))
+})
+
+ipcMain.on('whale:wall-inset', (_event, data) => {
+  if (!win || win.isDestroyed()) return
+  const b = win.getBounds()
+  const left = Number(data?.left)
+  const right = Number(data?.right)
+  if (Number.isFinite(left)) wallInsetLeft = Math.max(0, Math.min(b.width, left))
+  if (Number.isFinite(right)) wallInsetRight = Math.max(0, Math.min(b.width, right))
+})
+
 ipcMain.on('whale:drag-start', () => {
   if (!win || win.isDestroyed()) return
+  stopClimb()
   stopDragTimer()
   dragState = { cursor: screen.getCursorScreenPoint(), bounds: win.getBounds() }
   dragTimer = setInterval(() => {
@@ -165,6 +271,7 @@ ipcMain.on('whale:drag-start', () => {
       // DPI rounding drift.
       win.setPosition(nextX, nextY, false)
     }
+    updateClimbSide(win.getBounds())
   }, 16)
 })
 ipcMain.on('whale:drag-move', () => { /* main polls the cursor while dragging */ })
@@ -172,6 +279,7 @@ ipcMain.on('whale:drag-end', () => {
   if (win && !win.isDestroyed() && dragState) {
     const b = win.getBounds()
     win.setBounds({ x: b.x, y: b.y, width: dragState.bounds.width, height: dragState.bounds.height }, false)
+    updateClimbSide(win.getBounds())
   }
   stopDragTimer()
 })

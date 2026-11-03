@@ -22,6 +22,8 @@
   let lastZone = ''
   let rapid = 0
   let rapidAt = 0
+  let climbSide = ''
+  let pendingClimb = ''
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -47,7 +49,21 @@
     }
     avatar = window.WhaleAvatar
     avatar.init(avatarEl, { outfit: state?.outfit || 'maid' })
+    scheduleWallInsets(0)
+    if (pendingClimb) applyClimb(pendingClimb)
   }
+
+  function applyClimb(side) {
+    const next = side === 'left' || side === 'right' ? side : ''
+    if (!avatar) { pendingClimb = next; return }
+    if (next === climbSide) return
+    climbSide = next
+    avatar.play(next ? `climb-${next}` : 'idle')
+    scheduleWallInsets(120)
+    setTimeout(() => { if (climbSide === next) scheduleWallInsets(0) }, 420)
+  }
+
+  if (shell?.onClimb) shell.onClimb(applyClimb)
 
   function petScale() {
     const n = Number(state?.scale)
@@ -56,7 +72,53 @@
 
   function applyPetScale() {
     document.documentElement.style.setProperty('--pet-scale', String(petScale()))
+    reportAxis()
   }
+
+  function reportAxis() {
+    if (!shell?.setAxis) return
+    const r = petColumn.getBoundingClientRect()
+    shell.setAxis(Math.round(r.left + r.width / 2))
+  }
+
+  let wallMeasureTimer = null
+  function scheduleWallInsets(delay = 120) {
+    if (!shell?.setWallInset) return
+    clearTimeout(wallMeasureTimer)
+    wallMeasureTimer = setTimeout(measureWallInsets, delay)
+  }
+
+  function measureWallInsets() {
+    if (!shell?.setWallInset) return
+    const canvas = avatarEl.querySelector('canvas')
+    if (!canvas || !canvas.width || !canvas.height) return
+    let data
+    try { data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data } catch { return }
+    let min = canvas.width
+    let max = -1
+    for (let y = 0; y < canvas.height; y += 2) {
+      const row = y * canvas.width
+      for (let x = 0; x < canvas.width; x += 2) {
+        if (data[(row + x) * 4 + 3] > 16) {
+          if (x < min) min = x
+          if (x > max) max = x
+        }
+      }
+    }
+    if (max < min) return
+    const rect = canvas.getBoundingClientRect()
+    const sx = rect.width / canvas.width
+    const left = Math.max(0, Math.round(rect.left + min * sx))
+    const right = Math.min(window.innerWidth, Math.round(rect.left + (max + 1) * sx))
+    shell.setWallInset(left, right)
+  }
+
+  function onLayoutChanged() {
+    reportAxis()
+    scheduleWallInsets()
+  }
+
+  window.addEventListener('resize', onLayoutChanged)
 
   function collapsedSize() {
     const s = petScale()
@@ -119,7 +181,7 @@
       state = r.state
       applyPetScale()
       zzz.hidden = !state.asleep
-      if (state.outfit && avatar?.setOutfit) avatar.setOutfit(state.outfit)
+      if (state.outfit && avatar?.setOutfit) { avatar.setOutfit(state.outfit); scheduleWallInsets(180) }
       if (state.asleep) {
         bubble.hidden = false
         bubble.textContent = '唔……睡着了……'
@@ -139,6 +201,7 @@
     const size = expandedSize()
     if (shell?.setSize) await shell.setSize(size.width, size.height).catch(() => {})
     else { try { window.resizeTo(size.width, size.height) } catch {} }
+    onLayoutChanged()
     await setChatState(true)
   }
 
@@ -153,6 +216,7 @@
     const size = collapsedSize()
     if (shell?.setSize) await shell.setSize(size.width, size.height).catch(() => {})
     else { try { window.resizeTo(size.width, size.height) } catch {} }
+    onLayoutChanged()
     await setChatState(false)
   }
 
@@ -304,6 +368,7 @@
       const r = await api('/dsh-whale/api/pet/outfit', { outfit: btn.dataset.outfit })
       state = r.state
       avatar?.setOutfit(btn.dataset.outfit)
+      scheduleWallInsets(180)
       outfitMenu.hidden = true
       showToast('换好啦')
     } catch (err) { showToast(err.message) }
@@ -362,10 +427,11 @@
             chatFrame.src = 'about:blank'
             const size = collapsedSize()
             if (shell?.setSize) shell.setSize(size.width, size.height).catch(() => {})
+            onLayoutChanged()
           } else if (data.type === 'state' && data.state) {
             state = data.state
             zzz.hidden = !state.asleep
-            if (state.outfit) avatar?.setOutfit(state.outfit)
+            if (state.outfit) { avatar?.setOutfit(state.outfit); scheduleWallInsets(180) }
           }
         } catch {}
       }
