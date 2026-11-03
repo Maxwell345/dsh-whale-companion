@@ -827,5 +827,41 @@
       "back": -15.8,
       "left": 6.66
     }
+  },
+  "turnaround12": {
+    "frames": {
+      "00": "turnaround12/00-front.png",
+      "01": "turnaround12/01-030.png",
+      "02": "turnaround12/02-060.png",
+      "03": "turnaround12/03-090.png",
+      "04": "turnaround12/04-120.png",
+      "05": "turnaround12/05-150.png",
+      "06": "turnaround12/06-180.png",
+      "07": "turnaround12/07-210.png",
+      "08": "turnaround12/08-240.png",
+      "09": "turnaround12/09-270.png",
+      "10": "turnaround12/10-300.png",
+      "11": "turnaround12/11-330.png"
+    },
+    "frameOrder": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"],
+    "frameCount": 12,
+    "frameWidth": 1100,
+    "frameHeight": 1494,
+    "durationMs": 1100,
+    "crossfadeMs": 40,
+    "renderOffsetX": {
+      "00": 5,
+      "01": 5,
+      "02": 5,
+      "03": 5.5,
+      "04": 5.5,
+      "05": 5,
+      "06": 5.5,
+      "07": 5.5,
+      "08": 5.5,
+      "09": 5,
+      "10": 5.5,
+      "11": 5
+    }
   }
 }

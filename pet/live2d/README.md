@@ -2,6 +2,20 @@
 
 运行时仍是透明 PNG + Canvas2D sprite，定义 window.WhaleAvatar。无需 npm 安装、构建、CDN、Pixi 或 Cubism Core；运行资源全部来自当前站点的本地静态路径。
 
+## Winter 12帧运行时（2026-11-03）
+
+winter已使用批准的turnaround/winter-12-contact-sheet.png安装12帧，0°直接使用原sprite，其余11格从批准联系表提取；没有重新生成或换图。逐格来源、宽度和限制见[安装记录](../assets/live2d/winter/turnaround/winter-12-install-notes.md)。原候选和旧四帧保持不变。
+
+先将各格等比恢复至本套原身高1439px（Alpha>16，顶点y24、脚底y1462），完整Alpha轮廓最宽1052px，因此turnaround12/的公共画布为1100×1494透明RGBA。没有缩小角色或裁掉帽子、头发、围巾、尾巴、靴子；00只扩展透明画布。renderOffsetX为5/5.5，与自动−24px帧宽偏移一起保持原绘制中心x531.5。
+
+仅在winter/rig.json新增turnaround12，复用按每套frameWidth读取的现有JS；maid/knit不变。00→01→…→11→00共1100ms，每段约91.6667ms，段末40ms线性淡化，没有220ms停留。缺12帧任一张即回本套旧四帧，不影响其他动作。
+
+批准素材仍有观感限制：0°到30°的可见宽度1024→792px（收窄约22.66%），210°/240°主要依赖帽口与衣袖/腿部遮挡区分。没有用非等比补宽或额外镜头缩放掩盖；40ms混合也可能出现短暂双轮廓。
+
+离线Chrome功能检查通过：winter12/12加载、顺序和1100ms/40ms线性时序正确，240×320下身高始终293px，无裁切/空图/整体缩放。缺07-210.png时回旧四帧，三个旧spin采样与基线一致；其余168个动作采样逐像素不变，含maid/knit12，jump/climb/快切正常。外网及脚本异常为0，node --check通过，浏览器与服务已关闭。
+
+0°→30°的“不明显突然缩窄”观感项未通过：实播宽度208→184（半混合）→162px，首段明显收身且半混合有双脸。210°→240°可从帽口、饰物及袖尾遮挡区分，偏转幅度仍较弱。具体对照与正常速度实录见安装记录；本轮不返修批准美术。
+
 ## Knit 12帧运行时（2026-11-03）
 
 knit现使用已通过的六格修正版与原候选中的六格合并安装。[最终联系表及安装说明](../assets/live2d/knit/turnaround/knit-12-contact-final-notes.md)记录逐格来源；最终图为knit/turnaround/knit-12-contact-sheet-final.png。原十二格、六格及其说明均保留作历史记录。本轮没有重画或调用imagegen。
