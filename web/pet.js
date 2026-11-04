@@ -39,7 +39,7 @@
   async function bootAvatar() {
     // Prefer the Live2D avatar if Codex has dropped it in; fall back to the
     // reference-art avatar. Both implement the same window.WhaleAvatar API.
-    try { await loadScript('/dsh-whale/static/pet/live2d/avatar.js') } catch {}
+    try { await loadScript('/dsh-whale/static/pet/live2d/avatar.js?v=20261104a') } catch {}
     if (!window.WhaleAvatar) {
       try { await loadScript('/dsh-whale/static/ui/avatar-fallback.js') } catch {}
     }

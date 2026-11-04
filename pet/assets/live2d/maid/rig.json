@@ -921,5 +921,35 @@
       "08": -0.5,
       "09": 0
     }
+  },
+  "climb": {
+    "left": {
+      "frames": {
+        "01": "climb/left/01.png",
+        "02": "climb/left/02.png",
+        "03": "climb/left/03.png",
+        "04": "climb/left/04.png"
+      },
+      "frameOrder": ["01", "02", "03", "04"],
+      "frameCount": 4,
+      "frameWidth": 1100,
+      "frameHeight": 1494,
+      "frameDurationMs": 180,
+      "crossfadeMs": 0
+    },
+    "right": {
+      "frames": {
+        "01": "climb/right/01.png",
+        "02": "climb/right/02.png",
+        "03": "climb/right/03.png",
+        "04": "climb/right/04.png"
+      },
+      "frameOrder": ["01", "02", "03", "04"],
+      "frameCount": 4,
+      "frameWidth": 1100,
+      "frameHeight": 1494,
+      "frameDurationMs": 180,
+      "crossfadeMs": 0
+    }
   }
 }

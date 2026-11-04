@@ -143,7 +143,7 @@
       var timeout = setTimeout(() => controller.abort(), 6500)
       var promise = (async () => {
         var folder = ROOT + outfit + '/'
-        var response = await fetch(folder + 'rig.json', { signal: controller.signal, credentials: 'same-origin' })
+        var response = await fetch(folder + 'rig.json?v=20261104a', { signal: controller.signal, credentials: 'same-origin' })
         if (!response.ok) throw new Error('rig unavailable')
         var data = await response.json()
         if (!(data.width > 0 && data.width <= 4096 && data.height > 0 && data.height <= 4096) || !Array.isArray(data.layers) || !data.layers.length || data.layers.length > 64) throw new Error('invalid sprite rig')
@@ -213,7 +213,20 @@
           validTwelve ? loadTurnaround(twelveSpec, TURN_VIEWS, twelveSpec.frameWidth, twelveSpec.frameHeight) : Promise.resolve(null)
         ])
         var turnaround12 = turnarounds[1] ? { frames: turnarounds[1], frameOrder: TURN_VIEWS, frameWidth: twelveSpec.frameWidth, frameHeight: twelveSpec.frameHeight, durationMs: DURATIONS.spin, crossfadeMs: 40 } : null
-        return { width: data.width, height: data.height, bounds: data.bounds || [0, 0, data.width, data.height], layers: layers, views: views, turnaround: turnarounds[0], turnaround12: turnaround12, face: data.face || null, maxAngles: data.maxAngles || {}, headTravel: Number(data.headTravel) || 3, articulated: data.articulation === 'overlap' }
+        var climbSpec = data.climb || {}
+        var climbOrders = { left: ['01', '02', '03', '04'], right: ['01', '02', '03', '04'] }
+        var climbSets = await Promise.all(['left', 'right'].map(async function (side) {
+          var spec = climbSpec[side]
+          var order = climbOrders[side]
+          if (!spec || spec.frameCount !== order.length || !Number.isInteger(spec.frameWidth) || !Number.isInteger(spec.frameHeight)) return null
+          try {
+            var frames = await loadTurnaround(spec, order, spec.frameWidth, spec.frameHeight)
+            if (!frames) return null
+            return { frames: frames, frameOrder: order, frameWidth: spec.frameWidth, frameHeight: spec.frameHeight, frameDurationMs: Number(spec.frameDurationMs) || 180, crossfadeMs: Number(spec.crossfadeMs) || 0 }
+          } catch (_) { return null }
+        }))
+        var climb = { left: climbSets[0], right: climbSets[1] }
+        return { width: data.width, height: data.height, bounds: data.bounds || [0, 0, data.width, data.height], layers: layers, views: views, turnaround: turnarounds[0], turnaround12: turnaround12, climb: climb, face: data.face || null, maxAngles: data.maxAngles || {}, headTravel: Number(data.headTravel) || 3, articulated: data.articulation === 'overlap' }
 
       })()
       this._cache.set(outfit, promise)
@@ -373,6 +386,7 @@
       var p = this._pose
       var t = (now - this._started) / 1000
       var elapsed = now - this._actionAt
+      var climbElapsed = this.action.startsWith('climb-') ? elapsed : 0
       var duration = DURATIONS[this.action]
       if (this.action !== 'idle' && elapsed >= duration) {
         this.action = 'idle'
@@ -382,6 +396,7 @@
         duration = DURATIONS.idle
       }
       var u = duration === Infinity ? 0 : Math.min(1, elapsed / duration)
+      this._climbElapsed = climbElapsed
       var wave = Math.sin(u * PI)
       var amount = this._reduced ? 0.18 : 1
       p.x = 0; p.y = 0; p.r = Math.sin(t * 0.95) * 0.008
@@ -526,6 +541,18 @@
           p.ears -= wave * 0.05
           break
       }
+      var climbName = this.action === 'climb-left' ? 'left' : this.action === 'climb-right' ? 'right' : ''
+      var climbSet = climbName && this.rig && this.rig.climb && this.rig.climb[climbName]
+      if (climbSet) {
+        // The climb frames already contain the whole painted pose. Do not add
+        // the old procedural limb swing on top of them.
+        p.x = 0; p.y = 0; p.r = 0
+        p.sx = 1; p.sy = 1
+        p.head = 0; p.headY = 0; p.ears = 0; p.hair = 0; p.tail = 0
+        p.armL = 0; p.armR = 0; p.legL = 0; p.legR = 0
+        p.armLY = 0; p.armRY = 0; p.legLY = 0; p.legRY = 0
+        p.skirt = 0; p.camera = 0
+      }
       p.earL = p.ears
       p.earR = -p.ears * 0.85 + Math.sin(t * 2.1 + 0.7) * 0.006
       var gain = this.action === 'jump' || this.action.startsWith('climb-') ? 1 : 1.5
@@ -602,8 +629,26 @@
       this._twelveTurn = false
       var name = 'front'
       if (this.action === 'climb-left' || this.action === 'climb-right') {
-        name = this.action === 'climb-left' ? 'left' : 'right'
-        this._viewA = views[name] || null
+        var climbSide = this.action === 'climb-left' ? 'left' : 'right'
+        var climbSet = this.rig && this.rig.climb && this.rig.climb[climbSide]
+        if (climbSet) {
+          var climbOrder = climbSet.frameOrder
+          var climbDuration = Math.max(80, Number(climbSet.frameDurationMs) || 180)
+          var climbIndex = Math.floor(Math.max(0, Number(this._climbElapsed) || 0) / climbDuration) % climbOrder.length
+          var climbKey = climbOrder[climbIndex]
+          var climbFrame = climbSet.frames[climbKey]
+          if (climbFrame) {
+            this._viewA = climbFrame
+            this._viewMix = 0
+            name = 'climb-' + climbSide + '-' + climbKey
+          } else {
+            this._viewA = views[climbSide] || null
+            name = climbSide
+          }
+        } else {
+          this._viewA = views[climbSide] || null
+          name = climbSide
+        }
         if (!this._viewA) name = 'front-fallback'
       } else if (this.action === 'spin') {
         var turnaround = this.rig.turnaround
