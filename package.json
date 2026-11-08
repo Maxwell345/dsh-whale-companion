@@ -1,6 +1,6 @@
 {
   "name": "dsh-whale-companion",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "小肥鱼 · 电子宠物 / 虚拟伴侣：Electron 透明单窗口、聊天抽屉、QQ 私聊与群聊、日记式长期记忆、作息与自由活动。",
   "type": "module",
   "main": "lib/index.js",

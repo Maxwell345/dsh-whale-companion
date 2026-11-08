@@ -125,7 +125,6 @@
       ['抚摸次数', String(s.pet.totalTouches)],
       ['QQ', s.qq.connected ? `已连接 ${s.qq.selfId || ''}` : (s.qq.lastError || '未连接')],
       ['桌宠 / 聊天窗', `${s.windows.pet ? '开' : '关'} / ${s.windows.chat ? '开' : '关'}`],
-      ['今天玩游戏', `${s.activities.minutes} / ${s.activities.maxMinutes} 分钟`],
       ['记忆', `重要信息 ${fmtBytes(s.memory.importantBytes)} · 全天 ${s.memory.dailyCount} · 今日单轮 ${s.memory.conversationCount}`],
       ['自由活动日志', s.memory.freeLogToday ? '今天已有' : '今天还没有'],
     ]
@@ -141,8 +140,7 @@
     const free = s.activities
     $('#freeStatus').innerHTML = [
       ['状态', free.running ? '正在做' : '空闲'],
-      ['今天玩了', `${free.minutes} / ${free.maxMinutes} 分钟`],
-      ['作品', `${free.artCount} 张画 · ${free.gameCount} 个游戏 · ${free.bookCount} 本书`],
+      ['作品', `${free.artCount} 张画 · ${free.bookCount} 本书`],
       ['上次活动', free.lastActivityAt ? timeAgo(new Date(free.lastActivityAt).toISOString()) : '还没有'],
       ['下次大致', free.nextAt ? timeAgo(new Date(free.nextAt).toISOString()).replace('前', '后') : '—'],
     ].map(([k, v]) => `<div class="item"><span class="grow">${esc(k)}</span><b>${esc(v)}</b></div>`).join('')
@@ -161,7 +159,6 @@
       const w = r.works || {}
       const lines = []
       for (const f of (w.art || []).slice(0, 12)) lines.push(`<div class="item"><span class="pill">画</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
-      for (const f of (w.games || []).slice(0, 12)) lines.push(`<div class="item"><span class="pill">游戏</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
       for (const f of (w.books || []).slice(0, 12)) lines.push(`<div class="item"><span class="pill">书</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
       $('#worksList').innerHTML = lines.join('') || '<p class="hint">还没有作品。</p>'
     } catch {}

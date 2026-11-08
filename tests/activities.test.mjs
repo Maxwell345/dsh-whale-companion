@@ -10,9 +10,8 @@ function makeService(root) {
   const cfg = {
     dataDir: root,
     free: {
-      enabled: true, booksDir: '', maxGameMinutesPerDay: 30, keepDays: 14,
-      allowPython: true, maxCodeBytes: 20480,
-      activities: { draw: true, codeGame: true, readBook: true, appreciate: true, playGame: true, clean: true, missOwner: true },
+      enabled: true, booksDir: '', keepDays: 14, maxCodeBytes: 20480,
+      activities: { draw: true, readBook: true, appreciate: true, clean: true, missOwner: true },
     },
     schedule: { freeEnabled: true, freeMinGapMin: 25, freeMaxGapMin: 55 },
     memory: { importantMaxChars: 7000 },
@@ -32,19 +31,6 @@ function makeService(root) {
   })
 }
 
-test('HTML game validation blocks external resources and network', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-act-'))
-  try {
-    const s = makeService(root)
-    assert.doesNotThrow(() => s.validateHtml('<!doctype html><html><body><script>console.log(1)</script></body></html>'))
-    assert.throws(() => s.validateHtml('<!doctype html><html><body><script src="https://x/a.js"></script></body></html>'))
-    assert.throws(() => s.validateHtml('<!doctype html><html><body><script>fetch("x")</script></body></html>'))
-    assert.doesNotThrow(() => s.validateHtml('<html><body>hi</body></html>'))
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true })
-  }
-})
-
 test('SVG validation allows the required namespace but blocks scripts and external URLs', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-svg-'))
   try {
@@ -57,56 +43,36 @@ test('SVG validation allows the required namespace but blocks scripts and extern
   }
 })
 
-test('Python game validation blocks system and network imports', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-py-'))
+test('game-writing and game-playing activities are removed', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-no-games-'))
   try {
     const s = makeService(root)
-    assert.doesNotThrow(() => s.validatePython('import random\nprint(random.randint(1, 3))\n'))
-    assert.throws(() => s.validatePython('import os\nprint(os.getcwd())\n'))
-    assert.throws(() => s.validatePython('import socket\n'))
-    assert.throws(() => s.validatePython('import tkinter\n'))
-    assert.throws(() => s.validatePython('open("x", "w")\n'))
-    assert.throws(() => s.validatePython('eval("1+1")\n'))
+    assert.equal(typeof s.codeGame, 'undefined')
+    assert.equal(typeof s.playGame, 'undefined')
+    assert.equal(typeof s.validatePython, 'undefined')
+    assert.equal(typeof s.validateHtml, 'undefined')
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }
 })
 
-test('codeGame only accepts Python CLI text games', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-code-'))
-  try {
-    const s = makeService(root)
-    s.llm.call = async () => ({ text: '# python\nprint("猜数字")\nn = input("1-3: ")\nprint("你选了", n)\n' })
-    const r = await s.codeGame()
-    assert.equal(r.ok, true)
-    assert.match(r.file, /\.py$/)
-    assert.match(r.log, /命令行回合制/)
-
-    s.llm.call = async () => ({ text: '<!doctype html><html><body><script>keydown</script></body></html>' })
-    await assert.rejects(() => s.codeGame(), /只允许生成 Python 命令行/)
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true })
-  }
-})
-
-test('clean only removes old art/games and never books', async () => {
+test('clean only removes old art and never books', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-clean-'))
   try {
     const s = makeService(root)
     const p = ensureDataDirs({ ...s.getConfig(), dataDir: root })
     const old = new Date(Date.now() - 40 * 86400000)
     const art = path.join(p.art, 'old.svg')
-    const game = path.join(p.games, 'old.html')
     const book = path.join(p.books, 'book.txt')
     fs.writeFileSync(art, '<svg></svg>')
-    fs.writeFileSync(game, '<!doctype html><html></html>')
     fs.writeFileSync(book, 'text')
-    for (const f of [art, game]) fs.utimesSync(f, old, old)
+    fs.utimesSync(art, old, old)
     const r = await s.clean()
     assert.equal(r.ok, true)
     assert.ok(!fs.existsSync(art))
-    assert.ok(!fs.existsSync(game))
     assert.ok(fs.existsSync(book), 'books are never deleted')
+    assert.equal(s.status().artCount, 0)
+    assert.equal(s.status().bookCount >= 1, true)
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

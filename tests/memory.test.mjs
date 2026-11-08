@@ -13,6 +13,7 @@ function makeConfig(root) {
     self: { name: '小肥鱼' },
     owner: { name: '主人' },
     llm: { contextLimit: 8000, maxTokens: 200 },
+    qq: { contextIdleMinutes: 180 },
     memory: {
       maxDailyRead: 7, maxDailyChars: 9000, maxConversationChars: 5000,
       importantMaxChars: 7000, keepConversationFiles: true,
@@ -103,6 +104,82 @@ test('daily finalize merges summaries and free log, then deletes them', async ()
     assert.match(readText(out, ''), /全天总结日记/)
     assert.equal(fs.readdirSync(p.conversationSummaries).length, 0)
     assert.ok(!fs.existsSync(path.join(p.freeLog, `${date}.md`)))
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('QQ context loads every message from today and preserves consecutive roles', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-qq-context-'))
+  try {
+    const cfg = makeConfig(root)
+    cfg.llm.contextLimit = 32000
+    ensureDataDirs(cfg)
+    const store = new MemoryStore({ getConfig: () => cfg, llm: fakeLLM(), log: () => {} })
+    const convo = store.getConversation('qq-private-10001', { title: 'QQ 私聊', channel: 'qq-private' })
+    for (let i = 0; i < 60; i++) {
+      store.append(convo, 'user', `消息 ${i}`)
+      store.append(convo, 'assistant', `回复 ${i}`)
+    }
+    // Consecutive assistant messages must stay as separate messages.
+    store.append(convo, 'assistant', '再补一句')
+    const yesterday = { seq: 999, at: Date.now() - 86400000, role: 'user', content: '昨天的消息' }
+    fs.appendFileSync(store.qqHistoryFile(convo), JSON.stringify(yesterday) + '\n')
+
+    const messages = store.requestMessages(convo, 'SYSTEM')
+    assert.equal(messages[0].content, 'SYSTEM')
+    assert.ok(messages.some((m) => m.content === '消息 0'), 'oldest message today is loaded')
+    assert.ok(messages.some((m) => m.content === '回复 59'))
+    assert.equal(messages.filter((m) => m.content === '再补一句').length, 1)
+    assert.ok(!messages.some((m) => m.content === '昨天的消息'), 'yesterday is excluded')
+    assert.equal(messages.filter((m) => m.role === 'assistant').length >= 61, true)
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('QQ idle gap adds a reset note and proactive messages use today history', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-qq-proactive-'))
+  try {
+    const cfg = makeConfig(root)
+    ensureDataDirs(cfg)
+    let captured = []
+    const llm = {
+      async call(messages) {
+        captured = messages
+        return { text: '主人，我想你啦。' }
+      },
+      async *stream(messages) {
+        captured = messages
+        yield { type: 'delta', text: '好呀' }
+        yield { type: 'done', text: '好呀' }
+      },
+    }
+    const store = new MemoryStore({ getConfig: () => cfg, llm, log: () => {} })
+    const convo = store.getConversation('qq-private-10001', { title: 'QQ 私聊', channel: 'qq-private' })
+    store.append(convo, 'user', '早上的旧消息')
+    store.append(convo, 'assistant', '早上的旧回复')
+    const daily = store.qqHistoryFile(convo)
+    const rows = readJsonl(daily)
+    rows[0].at = Date.now() - 240 * 60000
+    fs.writeFileSync(daily, rows.map((r) => JSON.stringify(r)).join('\n') + '\n')
+    fs.writeFileSync(store.keyFile(convo.key), '')
+
+    const store2 = new MemoryStore({ getConfig: () => cfg, llm, log: () => {} })
+    await store2.chat({ key: convo.key, title: 'QQ 私聊', channel: 'qq-private', texts: ['刚刚回来', '在吗'] })
+    assert.match(captured[0].content, /上下文重置/)
+    assert.ok(captured.some((m) => m.content === '早上的旧消息'))
+    assert.ok(captured.some((m) => m.content === '刚刚回来'))
+    assert.ok(captured.some((m) => m.content === '在吗'))
+
+    await store2.proactive({
+      key: convo.key, title: 'QQ 私聊', channel: 'qq-private',
+      extra: '你现在有点想主人。',
+    })
+    assert.ok(captured.some((m) => m.content === '早上的旧消息'))
+    const after = readJsonl(store2.qqHistoryFile(convo))
+    assert.equal(after[after.length - 1].role, 'assistant')
+    assert.equal(after[after.length - 1].proactive, true)
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

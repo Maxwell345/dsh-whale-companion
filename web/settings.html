@@ -55,12 +55,12 @@
             <button class="btn ghost" id="btnOpenMemory">打开记忆目录</button>
             <button class="btn ghost" id="btnOpenBooks">打开书目录</button>
           </div>
-          <p class="hint">「让她自己玩」会随机画画 / 写游戏 / 读书 / 欣赏旧作 / 整理作品；也可以到「自由活动」里指定。</p>
+          <p class="hint">「让她自己玩」会随机画画 / 读书 / 欣赏旧作 / 整理作品；也可以到「自由活动」里指定。</p>
         </div>
         <div class="card">
           <h2>这套东西怎么运作</h2>
           <p class="hint" style="margin-top:8px">
-            桌宠抚摸、桌宠聊天、QQ 私聊、每个 QQ 群，各自有独立的上下文。
+            桌宠抚摸、桌宠聊天、QQ 私聊、每个 QQ 群，各自有独立的上下文。QQ 只加载当天 0:00 后的消息，昨天不会带进来。
             聊天窗关闭时会把这一轮对话压缩成「单轮对话总结日记」，并更新「重要信息记忆」；
             睡前再把当天所有单轮总结 + 自由活动日志整理成「全天总结日记」。
             抚摸互动不做记忆加长，超出窗口就让它过去。
@@ -114,6 +114,10 @@
           <div class="field"><label>群号 3</label><input class="input" data-path="qq.groups.2" inputmode="numeric"></div>
           <div class="row"><div><div class="label">群聊回复时 @ 对方</div><div class="desc">关闭后只发文字。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="qq.replyAt"><i></i></label></div></div>
           <div class="field"><label>单条最长字符</label><input class="input" type="number" data-path="qq.maxReplyChars" min="100" max="4000"></div>
+        <div class="field"><label>连续消息合并窗口（毫秒）</label><input class="input" type="number" data-path="qq.batchWindowMs" min="0" max="10000"></div>
+        <p class="hint">主人连续发多条时，等待这个时间后合并成一次回复；设为 0 则每条立即处理。</p>
+        <div class="field"><label>多久没回消息后重置会话（分钟，0 = 不重置）</label><input class="input" type="number" data-path="qq.contextIdleMinutes" min="0" max="1440"></div>
+        <p class="hint">重置只改变对话接续方式；今天的完整聊天记录仍会加载，不会删除历史。</p>
           <div class="inline" style="margin-top:10px">
             <button class="btn" id="btnQQConnect">连接 / 重连</button>
             <button class="btn ghost" id="btnQQDisconnect">断开</button>
@@ -219,26 +223,20 @@
           <h2>她能做什么</h2>
           <div class="row"><div><div class="label">启用自由活动</div><div class="desc">醒着、不忙、且不在聊天时才会开始。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.enabled"><i></i></label></div></div>
           <div class="row"><div><div class="label">画画</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.draw"><i></i></label></div></div>
-          <div class="row"><div><div class="label">写小游戏</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.codeGame"><i></i></label></div></div>
           <div class="row"><div><div class="label">读书</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.readBook"><i></i></label></div></div>
           <div class="row"><div><div class="label">欣赏旧画</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.appreciate"><i></i></label></div></div>
-          <div class="row"><div><div class="label">玩自己写的游戏</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.playGame"><i></i></label></div></div>
           <div class="row"><div><div class="label">整理作品</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.clean"><i></i></label></div></div>
           <div class="row"><div><div class="label">主动想主人</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.activities.missOwner"><i></i></label></div></div>
         </div>
         <div class="card">
           <h2>边界与配额</h2>
-          <div class="field"><label>每天玩游戏上限（分钟，最多 30）</label><input class="input" type="number" data-path="free.maxGameMinutesPerDay" min="0" max="30"></div>
           <div class="field"><label>旧作品保留天数</label><input class="input" type="number" data-path="free.keepDays" min="1" max="365"></div>
-          <div class="row"><div><div class="label">允许写 Python 文字游戏</div><div class="desc">只生成命令行回合制；不允许联网 / 读写文件 / 启动进程；代码 ≤ 20KB。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="free.allowPython"><i></i></label></div></div>
           <div class="field"><label>书目录（留空 = 数据目录/书）</label><input class="input" data-path="free.booksDir" placeholder="F:\我的书"></div>
-          <p class="hint">书只读不删。她只会清理自己的画和游戏，而且只删超过保留天数的。</p>
+          <p class="hint">书只读不删。她只会清理自己的画，而且只删超过保留天数的。</p>
           <div class="inline" style="margin-top:10px">
             <button class="btn" data-run="draw">画一幅</button>
-            <button class="btn" data-run="codeGame">写游戏</button>
             <button class="btn" data-run="readBook">读一本书</button>
             <button class="btn" data-run="appreciate">看旧画</button>
-            <button class="btn" data-run="playGame">玩一局</button>
             <button class="btn" data-run="clean">整理</button>
           </div>
         </div>

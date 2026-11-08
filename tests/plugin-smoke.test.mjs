@@ -47,7 +47,7 @@ test('host plugin mounts the /dsh-whale route and answers status', async () => {
     assert.equal(statusCode, 200)
     const parsed = JSON.parse(body)
     assert.equal(parsed.ok, true)
-    assert.equal(parsed.status.version, '0.2.0')
+    assert.equal(parsed.status.version, '0.2.1')
     assert.equal(parsed.status.paths.root, path.join(home, 'data'))
   } finally {
     for (const c of cleanups) { try { c() } catch {} }

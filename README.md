@@ -1,6 +1,6 @@
 # dsh-whale-companion · 小肥鱼
 
-> 给 DeepSeek Harness 装一条有作息、有记忆、会吃醋、会自己画画写游戏的小鲸鱼娘。
+> 给 DeepSeek Harness 装一条有作息、有记忆、会吃醋、会自己画画的小鲸鱼娘。
 >
 > 桌宠抚摸 · 聊天抽屉 · QQ 私聊/群聊 · 日记式长期记忆 · 自由活动。
 >
@@ -20,9 +20,10 @@
 
 - **桌宠**：一个独立的小窗口，三套服装（女仆 / 针织 / 冬装），摸头、捏左右耳、摸肚子、摸尾巴、戳脸、牵左右手、碰双脚都有不同反应；高兴、撒娇、转圈、喷水、炸毛、困倦等动作由 LLM 返回的动作标签驱动。
 - **桌宠聊天抽屉**：和 DSH 聊天框完全独立，但和桌宠在同一个透明窗口里；左键抚摸、右键菜单，展开聊天不另开窗口。支持流式回复、插话打断、折叠时写总结。
-- **QQ**：NapCatQQ（OneBot 11）WebSocket。只私聊主人，只回复最多三个群里 @ 她的消息；睡觉时断开，醒来只处理新消息；主人连发时打断上一条回复。
-- **记忆**：人设人格卡固定；重要信息记忆一份；单轮对话总结日记 N 份；全天总结日记按天一份；自由活动日志每天一份。上下文窗口满时，最早的消息**原封不动**写进临时记忆文件，不是摘要、不是向量库；对话结束时才压缩成单轮总结，睡前再合成全天总结。
-- **自由活动**：醒来后不忙时，自己画画（SVG）、写**命令行文字小游戏**（Python 单文件，≤20KB）、读书（只读不删）、欣赏旧作、玩自己的游戏（每天 ≤30 分钟）、整理旧作品、主动想主人。
+- **QQ**：NapCatQQ（OneBot 11）WebSocket。只私聊主人，只回复最多三个群里 @ 她的消息；睡觉时断开，醒来只处理新消息。主人连续发消息时，会等一个短窗口后合并成一次回复，而不是逐条复读。
+- **QQ 上下文**：每个 QQ 私聊/群独立，只加载当天 0:00 后的全部消息，包含连续多条用户消息和连续多条 assistant 消息；不加载昨天。隔太久没回消息时会加一个“重新接续”的上下文边界，但当天历史仍保留。桌宠聊天窗仍使用原来的活动窗口 + 临时记忆。
+- **记忆**：人设人格卡固定；重要信息记忆一份；单轮对话总结日记 N 份；全天总结日记按天一份；自由活动日志每天一份。桌宠聊天窗口满时，最早的消息**原封不动**写进临时记忆文件；QQ 当日原文单独保存。
+- **自由活动**：醒来后不忙时，自己画画（SVG）、读书（只读不删）、欣赏旧作、整理旧作品、主动想主人。写游戏和玩游戏功能已移除。
 - **设置页**：DSH「设置 → 小肥鱼」里的完整设置；人设修改要连续确认三次。
 
 ---
@@ -82,14 +83,14 @@ dsh-whale-companion/
 │  ├─ pet.js            # 抚摸互动、心情/亲近/精力、动作解析
 │  ├─ qq.js             # OneBot 11 WebSocket 客户端
 │  ├─ schedule.js       # 生物钟、手动唤醒/哄睡
-│  ├─ activities.js     # 自由活动、作品校验、游戏时长
+│  ├─ activities.js     # 自由活动、画画/读书/整理作品
 │  ├─ window-shell.js   # Electron 透明单窗口 + Edge fallback
 │  └─ client.js         # DSH 设置 section（iframe 壳）
 ├─ web/
 │  ├─ settings.html/js  # 完整设置页
 │  ├─ pet.html/js/css   # 透明桌宠 + 聊天抽屉 + 右键菜单
 │  ├─ chat.html/js/css  # 聊天抽屉内容（也可独立打开）
-│  ├─ activity.html/js  # 看画 / 玩游戏
+│  ├─ activity.html/js  # 看画
 │  ├─ avatar-fallback.js# 立绘 fallback（实现 window.WhaleAvatar）
 │  └─ ui.css / ui.js
 ├─ pet/
@@ -118,10 +119,10 @@ dsh-whale-companion/
   全天总结日记/YYYY-MM-DD.md
   单轮对话总结日记/YYYY-MM-DD-HHMM-标题.md
   自由活动日志/YYYY-MM-DD.md
+  QQ今日上下文/YYYY-MM-DD-<通道>.jsonl
   临时记忆/<对话>.jsonl
 对话历史/<对话>.jsonl
 自由活动/画/*.svg
-自由活动/游戏/*.py        # 只生成命令行文字游戏；旧 HTML 不再选中
 书/*.txt
 日志/whale.log
 状态.json
@@ -232,14 +233,9 @@ powershell -ExecutionPolicy Bypass -File tools/install-electron.ps1
 
 ## 自由活动的硬约束
 
-- 代码 ≤ 20KB（`free.maxCodeBytes`，上限写死 20480）。
-- 写游戏**只允许 Python 单文件、命令行、回合制、文字游戏**：
-  - 用 `print()` 输出、`input()` 读取选择；
-  - 不允许 HTML/JavaScript/Canvas/图形界面/键盘监听/鼠标点击/实时循环。
-- Python 禁止 `os/sys/socket/subprocess/shutil/pathlib/requests/urllib/...`、禁止 `open/eval/exec/__import__`、禁止启动进程；运行在独立控制台，时长由「结束游戏」记录。
-- 旧的 HTML 游戏文件不会被删除，但**不会再被生成或选中**。
-- 每天玩游戏 ≤ 30 分钟（只能调低，硬上限 30）。
-- 书目录只读，不删；整理只删 `自由活动/画` 和 `自由活动/游戏` 里超过保留天数的文件。
+- SVG 画 ≤ 20KB（`free.maxCodeBytes`，上限写死 20480）。
+- 写游戏和玩游戏功能已删除：不再生成代码、不再启动 Python/HTML、不再有游戏时长。
+- 书目录只读，不删；整理只删 `自由活动/画` 里超过保留天数的文件。
 - 每完成一件事，追加到当天的 `自由活动日志`；睡觉时合成全天总结后删除。
 
 ---
@@ -257,7 +253,7 @@ powershell -ExecutionPolicy Bypass -File tools/install-electron.ps1
 
 - 所有 `/dsh-whale` 路由都过 `connection.requestRejection`（DSH 会话）或窗口 token（`dsh_whale_token` cookie）。
 - 设置页里的 API Key / QQ token 保存后不回显；留空保存不会清掉旧值。
-- 静态文件服务做路径越界检查；游戏 iframe 有 CSP + sandbox。
+- 静态文件服务做路径越界检查。
 - 人设修改：已有非空人设时，前端连续三次确认，后端也要求 `confirmations >= 3`。
 - 不包含 B 站私信/评论/视频功能，避免和「养鱼」插件冲突。
 
@@ -268,7 +264,7 @@ powershell -ExecutionPolicy Bypass -File tools/install-electron.ps1
 - 当前 `pet/live2d/avatar.js` 是 Canvas2D 分层 sprite 版，不是 Cubism model3；真正 Live2D 需要 Cubism Editor 绑定/导出。
 - Electron 运行时约 158MB（解压后更大），放在 `whale-companion/pet-shell`；不随插件源码打包。
 - Edge fallback 的洋红抠色在部分 Chromium 版本不生效；优先用 Electron。
-- Python 游戏是独立控制台，不是嵌入桌宠窗口；计时靠开始/结束按钮。
+- QQ 当日上下文按天保存；单日消息超过模型窗口时，只能从最早的消息开始丢弃，并写日志。设置里的“没回消息重置”只改变接续方式，不删除当天历史。
 - 上下文 token 是估算（CJK 1 字≈1 token，ASCII≈1/3.5 token），不是官方 tokenizer；`contextLimit` 可在高级里调低。
 - QQ 依赖 NapCat 的 OneBot 11 实现；不同版本字段可能略有差异，`lib/qq.js` 已尽量兼容数组/字符串消息段。
 - 宿主半改动需要重启 DSH；浏览器半（`lib/client.js`）由 DSH 的 client-modules HMR 推送，但设置页/桌宠页面本身刷新即可。
