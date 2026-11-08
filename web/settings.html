@@ -12,7 +12,7 @@
       <img src="/dsh-whale/static/pet/assets/maid.png" alt="" onerror="this.style.display='none'">
       <div>
         <h1>小肥鱼</h1>
-        <p>电子宠物 / 虚拟伴侣 · 桌宠、QQ 与日记式记忆</p>
+        <p>电子宠物 / 虚拟伴侣 · 桌宠、聊天与日记式记忆</p>
       </div>
     </div>
     <div class="grow"></div>
@@ -27,7 +27,6 @@
   <nav class="tabs" id="tabs">
     <button class="tab active" data-tab="overview">总览</button>
     <button class="tab" data-tab="persona">人格</button>
-    <button class="tab" data-tab="qq">QQ</button>
     <button class="tab" data-tab="pet">桌宠</button>
     <button class="tab" data-tab="schedule">作息</button>
     <button class="tab" data-tab="memory">记忆</button>
@@ -60,7 +59,7 @@
         <div class="card">
           <h2>这套东西怎么运作</h2>
           <p class="hint" style="margin-top:8px">
-            桌宠抚摸、桌宠聊天、QQ 私聊、每个 QQ 群，各自有独立的上下文。QQ 只加载当天 0:00 后的消息，昨天不会带进来。
+            桌宠抚摸和桌宠聊天各有独立的上下文。
             聊天窗关闭时会把这一轮对话压缩成「单轮对话总结日记」，并更新「重要信息记忆」；
             睡前再把当天所有单轮总结 + 自由活动日志整理成「全天总结日记」。
             抚摸互动不做记忆加长，超出窗口就让它过去。
@@ -77,7 +76,7 @@
     <section class="section" data-section="persona">
       <div class="card">
         <h2>人设人格卡（固定）</h2>
-        <p class="hint">这是她是谁。第一次填写直接保存；之后再改，会连续弹出三次警告。QQ、桌宠、聊天窗共用这一份。</p>
+        <p class="hint">这是她是谁。第一次填写直接保存；之后再改，会连续弹出三次警告。桌宠和聊天窗共用这一份。</p>
         <div class="inline" style="margin-top:10px">
           <span class="pill">当前 <b id="personaBytes">0</b> 字节</span>
           <span class="pill" id="personaUpdated">尚未保存</span>
@@ -94,38 +93,6 @@
       </div>
     </section>
 
-    <!-- QQ -->
-    <section class="section" data-section="qq">
-      <div class="grid">
-        <div class="card">
-          <h2>QQ 连接</h2>
-          <p class="hint">推荐 NapCatQQ，OneBot 11 的 WebSocket 服务。只支持私聊主人、以及最多三个群里 @ 她的消息。</p>
-          <div class="row"><div><div class="label">启用 QQ</div><div class="desc">睡觉时自动断开，醒来重连；醒来前的旧消息不看。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="qq.enabled"><i></i></label></div></div>
-          <div class="field"><label>WebSocket 地址</label><input class="input" data-path="qq.wsUrl" placeholder="ws://127.0.0.1:3001"></div>
-          <div class="field"><label>Access Token（可空）</label><input class="input" type="password" data-path="qq.token" placeholder="没设置就留空；留空保存不会清掉旧 token"></div>
-          <div class="field"><label>小肥鱼的 QQ 号</label><input class="input" data-path="self.qq" inputmode="numeric" placeholder="机器人 QQ"></div>
-          <div class="field"><label>主人 QQ 号（只私聊这个号）</label><input class="input" data-path="owner.qq" inputmode="numeric" placeholder="你的 QQ"></div>
-        </div>
-        <div class="card">
-          <h2>群聊</h2>
-          <p class="hint">最多三个群。只有明确 @ 她的消息才会回；其他消息一律不理。</p>
-          <div class="field"><label>群号 1</label><input class="input" data-path="qq.groups.0" inputmode="numeric"></div>
-          <div class="field"><label>群号 2</label><input class="input" data-path="qq.groups.1" inputmode="numeric"></div>
-          <div class="field"><label>群号 3</label><input class="input" data-path="qq.groups.2" inputmode="numeric"></div>
-          <div class="row"><div><div class="label">群聊回复时 @ 对方</div><div class="desc">关闭后只发文字。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="qq.replyAt"><i></i></label></div></div>
-          <div class="field"><label>单条最长字符</label><input class="input" type="number" data-path="qq.maxReplyChars" min="100" max="4000"></div>
-        <div class="field"><label>连续消息合并窗口（毫秒）</label><input class="input" type="number" data-path="qq.batchWindowMs" min="0" max="10000"></div>
-        <p class="hint">主人连续发多条时，等待这个时间后合并成一次回复；设为 0 则每条立即处理。</p>
-        <div class="field"><label>多久没回消息后重置会话（分钟，0 = 不重置）</label><input class="input" type="number" data-path="qq.contextIdleMinutes" min="0" max="1440"></div>
-        <p class="hint">重置只改变对话接续方式；今天的完整聊天记录仍会加载，不会删除历史。</p>
-          <div class="inline" style="margin-top:10px">
-            <button class="btn" id="btnQQConnect">连接 / 重连</button>
-            <button class="btn ghost" id="btnQQDisconnect">断开</button>
-            <span class="pill" id="qqState">未连接</span>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- 桌宠 -->
     <section class="section" data-section="pet">
@@ -168,7 +135,7 @@
       <div class="grid">
         <div class="card">
           <h2>生物钟</h2>
-          <div class="row"><div><div class="label">启用作息</div><div class="desc">关闭 = 一直醒着。睡觉时自动关聊天窗、断 QQ、关抚摸、整理当天记忆。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="schedule.enabled"><i></i></label></div></div>
+          <div class="row"><div><div class="label">启用作息</div><div class="desc">关闭 = 一直醒着。睡觉时自动折叠聊天、关抚摸、整理当天记忆。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="schedule.enabled"><i></i></label></div></div>
           <div class="field"><label>醒来时间</label><input class="input" type="time" data-path="schedule.wake"></div>
           <div class="field"><label>睡觉时间</label><input class="input" type="time" data-path="schedule.sleep"></div>
           <div class="row"><div><div class="label">自由活动</div><div class="desc">醒来后、不忙的时候自己找事做。</div></div><div class="control"><label class="switch"><input type="checkbox" data-path="schedule.freeEnabled"><i></i></label></div></div>
@@ -183,7 +150,7 @@
           <div class="field"><label>两件事之间最少间隔（分钟）</label><input class="input" type="number" data-path="schedule.freeMinGapMin" min="5" max="240"></div>
           <div class="field"><label>最多间隔（分钟）</label><input class="input" type="number" data-path="schedule.freeMaxGapMin" min="6" max="480"></div>
           <div class="field"><label>多久没聊天会想你（分钟）</label><input class="input" type="number" data-path="schedule.missOwnerAfterMin" min="20" max="1440"></div>
-          <p class="hint">她会先看桌宠聊天窗是否开着；没开就发 QQ 私聊；都没条件时只在桌宠冒个泡。</p>
+          <p class="hint">她会先看桌宠聊天窗是否开着；没开就打开桌宠并展开聊天；桌宠不可用时只在气泡里冒个泡。</p>
         </div>
       </div>
     </section>
@@ -265,7 +232,7 @@
         </div>
         <div class="card">
           <h2>数据目录</h2>
-          <div class="field"><label>共享目录（桌宠 + QQ + 记忆）</label><input class="input" data-path="dataDir"></div>
+          <div class="field"><label>共享目录（桌宠 + 聊天 + 记忆）</label><input class="input" data-path="dataDir"></div>
           <p class="hint">人设人格卡、记忆卡、对话历史、自由活动作品都在这里。换目录后旧数据不会自动搬。</p>
           <div class="inline">
             <button class="btn ghost" id="btnOpenRoot">打开数据目录</button>

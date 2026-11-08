@@ -237,7 +237,7 @@
         await api('/dsh-whale/api/wake', {})
         showToast('醒啦')
       } else {
-        const ok = confirm('现在就哄她睡觉吗？\n睡觉会折叠聊天、断开 QQ，并开始整理今天的记忆。')
+        const ok = confirm('现在就哄她睡觉吗？\n睡觉会折叠聊天，并开始整理今天的记忆。')
         if (!ok) return
         await api('/dsh-whale/api/sleep', {})
         showToast('晚安')

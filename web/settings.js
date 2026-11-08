@@ -28,7 +28,6 @@
     // secret placeholders
     const secretHints = [
       ['llm.apiKey', cfg.llm?.apiKeySet],
-      ['qq.token', cfg.qq?.tokenSet],
     ]
     for (const [path, has] of secretHints) {
       const el = $(`[data-path="${path}"]`)
@@ -113,7 +112,6 @@
     const s = status
     $('#pills').innerHTML = [
       pill(s.awake ? '醒着' : '睡着', s.awake ? 'ok' : ''),
-      pill(s.qq.connected ? 'QQ 已连接' : 'QQ 未连接', s.qq.connected ? 'ok' : 'bad'),
       pill(s.llm.configured ? `模型 ${s.llm.model}` : '模型未配置', s.llm.configured ? 'ok' : 'bad'),
       pill(s.windows.pet ? '桌宠窗开着' : '桌宠窗关着', s.windows.pet ? 'ok' : ''),
     ].join('')
@@ -123,7 +121,6 @@
       ['现在', s.now],
       ['心情 / 亲近 / 精力', `${s.pet.mood} / ${s.pet.affection} / ${s.pet.energy}`],
       ['抚摸次数', String(s.pet.totalTouches)],
-      ['QQ', s.qq.connected ? `已连接 ${s.qq.selfId || ''}` : (s.qq.lastError || '未连接')],
       ['桌宠 / 聊天窗', `${s.windows.pet ? '开' : '关'} / ${s.windows.chat ? '开' : '关'}`],
       ['记忆', `重要信息 ${fmtBytes(s.memory.importantBytes)} · 全天 ${s.memory.dailyCount} · 今日单轮 ${s.memory.conversationCount}`],
       ['自由活动日志', s.memory.freeLogToday ? '今天已有' : '今天还没有'],
@@ -133,7 +130,6 @@
       ['共享目录', s.paths.root], ['人设卡', s.paths.persona], ['记忆卡', s.paths.memory], ['书目录', s.paths.books],
     ].map(([k, v]) => `<div class="item"><span class="grow">${esc(k)}</span><small title="${esc(v)}">${esc(v)}</small></div>`).join('')
 
-    $('#qqState').textContent = s.qq.connected ? '已连接' : (s.qq.connecting ? '连接中…' : (s.qq.lastError || '未连接'))
     $('#llmState').textContent = s.llm.configured ? '已配置' : '未配置'
     $('#llmState').className = `pill ${s.llm.configured ? 'ok' : 'bad'}`
 
@@ -196,7 +192,7 @@
       if (!ok2) return
       const ok3 = await modal({
         title: '最后一次确认',
-        body: '这是第三次，也是最后一次。\n\n保存后，QQ 私聊、QQ 群聊、桌宠聊天、抚摸互动都会立刻改用新的人设。没有自动备份，也不会问你第四遍。\n\n你确认真的要这么做吗？',
+        body: '这是第三次，也是最后一次。\n\n保存后，桌宠聊天、抚摸互动都会立刻改用新的人设。没有自动备份，也不会问你第四遍。\n\n你确认真的要这么做吗？',
         okText: '确认修改', danger: true,
       })
       if (!ok3) return
@@ -293,8 +289,7 @@
   $('#btnOpenChat').addEventListener('click', async () => { try { await api('/chat/open', { method: 'POST', body: {} }); toast('聊天窗已打开', 'ok'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
   $('#btnOpenChat2').addEventListener('click', async () => { try { await api('/chat/open', { method: 'POST', body: {} }); toast('聊天窗已打开', 'ok'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
   $('#btnRunActivity').addEventListener('click', async () => { try { const r = await api('/activities/run', { method: 'POST', body: { kind: 'auto' } }); toast(r.ok ? '她去忙了' : r.error, r.ok ? 'ok' : 'err'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
-  $('#btnQQConnect').addEventListener('click', async () => { try { const r = await api('/qq/connect', { method: 'POST', body: {} }); toast(r.ok ? '正在连接…' : (r.qq?.lastError || '连接失败'), r.ok ? 'ok' : 'err'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
-  $('#btnQQDisconnect').addEventListener('click', async () => { try { await api('/qq/disconnect', { method: 'POST', body: {} }); toast('已断开', 'ok'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
+
   $('#btnTestLLM').addEventListener('click', async () => { try { $('#llmState').textContent = '测试中…'; const r = await api('/llm/test', { method: 'POST', body: {} }); $('#llmState').textContent = r.ok ? '连接正常' : '失败'; toast(r.ok ? `模型回复：${r.text}` : r.error, r.ok ? 'ok' : 'err') } catch (e) { $('#llmState').textContent = '失败'; toast(e.message, 'err') } })
   $('#btnResetWindows').addEventListener('click', async () => { try { await api('/window/close-all', { method: 'POST', body: {} }); toast('窗口已关闭', 'ok'); refreshStatus() } catch (e) { toast(e.message, 'err') } })
   $('#btnRotateToken').addEventListener('click', async () => {

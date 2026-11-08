@@ -65,7 +65,7 @@
         log.innerHTML = `<div class="chat-empty" id="chatEmpty">
           <div class="empty-emoji">🐋</div>
           <p>和她说点什么吧。</p>
-          <p class="muted">这里和 DSH 聊天框、QQ 都是分开的。关掉窗口时，这一轮会被写成「单轮对话总结日记」。</p>
+          <p class="muted">这里和 DSH 聊天框是分开的。折叠时，这一轮会被写成「单轮对话总结日记」。</p>
         </div>`
         emptyEl = $('#chatEmpty')
         return
@@ -87,7 +87,6 @@
       badge.className = `chat-badge${s.awake ? '' : ' off'}`
       sub.textContent = [
         s.awake ? '在线' : '睡着了',
-        s.qq.connected ? 'QQ 在线' : '',
         s.llm.configured ? s.llm.model : '模型未配置',
       ].filter(Boolean).join(' · ')
     } catch {}

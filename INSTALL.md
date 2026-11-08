@@ -9,7 +9,7 @@
 
 - 已安装 DeepSeek Harness Desktop，且能打开 Web GUI。
 - 需要 Electron 运行时（透明单窗口）；脚本默认下载到 `F:\DeepSeekBot\whale-companion\pet-shell`，没有 F 盘时回退到 `%USERPROFILE%\.dsh\whale-companion\pet-shell`。没有 Electron 时会回退 Edge，但透明效果不可靠。
-- 想用 QQ：先装好 [NapCatQQ](https://napcat.napcatqq.com/)，单独登录小肥鱼的 QQ 号，开启 OneBot 11 的 WebSocket 服务。
+
 
 ---
 
@@ -94,7 +94,7 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 1. 打开「设置 → 小肥鱼 → 人格」。
 2. 可以直接写，也可以点「载入模板」把 `persona-template.md` 载入，再改成你自己的。
 3. 第一次保存不弹警告；之后再改会连续弹三次确认。
-4. 保存后 QQ / 桌宠 / 聊天窗都会用这份人设。
+4. 保存后桌宠和聊天窗都会用这份人设。
 
 ### 2.2 模型 Key
 
@@ -116,23 +116,7 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 - 想先测试，可以把醒来时间改成 2 分钟后，保存，等她醒；
 - 手动「现在唤醒 / 现在睡觉」会压住生物钟 10 分钟，避免立刻被切回去。
 
-### 2.4 QQ（可选）
-
-1. 启动 NapCat，登录小肥鱼的 QQ。
-2. 打开 NapCat 的 OneBot 11 WebSocket 服务，记下地址（如 `ws://127.0.0.1:3001`）和 token。
-3. 设置页「QQ」：
-   - 启用；
-   - WebSocket 地址；
-   - Access Token；
-   - 小肥鱼 QQ 号；
-   - 主人 QQ 号；
-   - 最多三个群号。
-4. 保存后点「连接 / 重连」，状态变成「已连接」。
-5. 用主人的 QQ 私聊小肥鱼，或在群里 @ 她。
-
-> 睡觉时 QQ 会自动断开；醒来重连，醒来前的旧消息不看。
-
-### 2.5 桌宠
+### 2.4 桌宠
 
 「桌宠」：
 
@@ -176,7 +160,7 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 7. 刷新桌宠窗口（静态文件不需要重启 DSH）。`web/pet.js` 会优先加载 `pet/live2d/avatar.js`，失败自动回退到立绘。
 
 > 当前交付是 Canvas2D sprite 版；要真正 Live2D，先按 [CUBISM-TUTORIAL.md](CUBISM-TUTORIAL.md) 在 Cubism Editor 绑定导出，再替换 `avatar.js`。
-> Codex 只做美术、Live2D、桌宠主题；不要让它改 `lib/`、QQ、记忆和设置页。
+> Codex 只做美术、Live2D、桌宠主题；不要让它改 `lib/`、记忆和设置页。
 > 如果 `check-live2d.mjs` 报错，把 ✗ 那几行发回给 Codex，让它只改 `pet/live2d/**`。
 
 ---
@@ -190,9 +174,8 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 - [ ] 点 💬 展开聊天抽屉，发一句，能流式回复。
 - [ ] 点聊天右上角「折叠」，`记忆卡/单轮对话总结日记/` 里出现一份总结；再次展开历史为空。
 - [ ] 右键桌宠有菜单；按住左键能移动；窗口透明、无标题栏。
-- [ ] 点「哄睡」，聊天折叠、QQ 断开；`记忆卡/全天总结日记/` 出现当天总结。
+- [ ] 点「哄睡」，聊天折叠；`记忆卡/全天总结日记/` 出现当天总结。
 - [ ] 设置里「记忆」可以把超过 14 天的旧日记压缩进重要信息。
-- [ ] （可选）QQ 私聊 / 群 @ 能收到回复。
 
 ---
 
@@ -205,9 +188,6 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 | 桌宠窗口没出现 | 先跑 `tools/install-electron.ps1`；看 `日志/whale.log`；没有 Electron 才回退 Edge |
 | 桌宠有洋红边/矩形底 | 当前是 Edge fallback；安装 Electron 后重启 DSH，改用透明单窗口 |
 | 桌宠不能拖动 | 确认用的是 Electron 壳；如果是旧缓存，关掉桌宠窗口重开。拖动是按住/移动，快速单击是抚摸，不要混用 |
-| QQ 连不上 | NapCat 没启动 / 端口不对 / token 不对 / 不是 OneBot 11 WebSocket |
-| QQ 不回私聊 | 只回主人 QQ；检查「主人 QQ 号」；机器人号不能是自己 |
-| QQ 群不回 | 只有 @ 她才回；群号是否在三个群里；她是否醒着 |
 | 回复很慢 | DeepSeek 网络；`llm.timeoutMs` 默认 120s |
 | 记忆里没有新总结 | 聊天要点「折叠」，不是关窗口；折叠会写总结并清空。直接杀进程可能来不及写；可在「记忆」里点「整理今天」 |
 | 修改人设没弹三次 | 只有已有非空人设再改才弹；第一次保存不弹 |

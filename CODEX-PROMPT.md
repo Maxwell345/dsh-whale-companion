@@ -1,8 +1,8 @@
-# 给 Codex 的提示词：小肥鱼 Live2D 桌宠形象 / 动作 / 独立聊天窗皮肤
+﻿# 给 Codex 的提示词：小肥鱼 Live2D 桌宠形象 / 动作 / 独立聊天窗皮肤
 
 > 用法：把下面 **“=== 提示词开始 ===” 到 “=== 提示词结束 ===”** 之间的全部内容复制给 Codex。
 > 工作目录填：`<你的插件目录>`（例如 `F:\DeepSeekBot\dsh-whale-companion`）
-> Codex 只做美术、Live2D 和桌宠前端主题；不要让它改后端、QQ、记忆、设置页，也不要让它去安装别人的插件。
+> Codex 只做美术、Live2D 和桌宠前端主题；不要让它改后端、记忆、设置页，也不要让它去安装别人的插件。
 
 ---
 
@@ -31,7 +31,7 @@ pet/live2d/vendor/
 
 ## 0.1 先读懂项目，不要重写整个项目
 
-这是一个已经能运行的 DSH 插件，后端、QQ、记忆、设置页、桌宠窗口壳、聊天窗都已经写好。你**只负责**桌宠的视觉层和 Live2D 适配层。请先读这些文件：
+这是一个已经能运行的 DSH 插件，后端、记忆、设置页、桌宠窗口壳、聊天窗都已经写好。你**只负责**桌宠的视觉层和 Live2D 适配层。请先读这些文件：
 
 - `README.md`（如果有）
 - `web/pet.html`、`web/pet.css`、`web/pet.js`
@@ -44,7 +44,7 @@ pet/live2d/vendor/
 ### 硬性边界
 
 1. **不要改** `lib/` 下的任何后端文件。
-2. **不要改** `lib/index.js`、`lib/memory.js`、`lib/qq.js`、`lib/pet.js`、`lib/activities.js`、`lib/config.js`。
+2. **不要改** `lib/index.js`、`lib/memory.js`、`lib/pet.js`、`lib/activities.js`、`lib/config.js`。
 3. **不要改** `web/settings.html`、`web/settings.js`、`web/ui.css`、`web/ui.js`。
 4. **不要加** B 站、私信、评论、视频相关功能。这个插件和已有的「养鱼」插件是分开的。
 5. **不要安装**任何 GitHub 上的现成插件，也不要照抄别人的插件代码。可以参考 Live2D 的通用接入方式，但代码要自己写。
@@ -284,7 +284,7 @@ pet/live2d/vendor/
   - 高质量透明 sprite 立绘（至少三套 + 表情差分）
   - `avatar.js` 的 sprite 版本（仍实现同一 `window.WhaleAvatar` 接口）
   并在 README 里写清楚缺口。不要用假模型糊弄。
-- 不要修改后端、设置页、QQ、记忆逻辑；如果发现接口不够用，在 `pet/live2d/README.md` 里写“需要主程序补充”，不要自己改 `lib/`。
+- 不要修改后端、设置页、记忆逻辑；如果发现接口不够用，在 `pet/live2d/README.md` 里写“需要主程序补充”，不要自己改 `lib/`。
 - 交付前运行 `node tools/check-live2d.mjs`，把输出贴出来；如果报 ✗，先修到通过再交付。
 
 === 提示词结束 ===
@@ -297,3 +297,4 @@ pet/live2d/vendor/
 - 如果 Codex 只能给 PSD/分层图，也可以先让 `avatar.js` 用 sprite 差分 + CSS 动效，后续再补 Cubism 绑定。
 - 现在的 fallback 立绘已经能用：`pet/assets/maid.png`、`knit.webp`、`winter.png`，以及 `happy/pout/sleepy.webp` 表情贴纸。
 - 三套服装的换装按钮在桌宠底部工具栏的 👗，以及设置页「桌宠 → 换装」。
+
