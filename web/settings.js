@@ -214,15 +214,6 @@
     } catch (err) { toast(`载入模板失败：${err.message}`, 'err') }
   }
 
-  async function saveImportant() {
-    try {
-      const r = await api('/memory/important', { method: 'POST', body: { text: $('#importantText').value } })
-      $('#importantBytes').textContent = fmtBytes(r.bytes || 0)
-      toast('重要信息已保存', 'ok')
-      loadMemory()
-    } catch (err) { toast(`保存失败：${err.message}`, 'err') }
-  }
-
   async function openFolder(which) {
     try { await api('/open-folder', { method: 'POST', body: { which } }); toast('已打开目录', 'ok') }
     catch (err) { toast(err.message, 'err') }
@@ -270,7 +261,6 @@
   $('#btnReloadConfig').addEventListener('click', () => loadConfig().then(() => toast('已重新读取', 'ok')).catch((e) => toast(e.message, 'err')))
   $('#btnSavePersona').addEventListener('click', savePersona)
   $('#btnPersonaTemplate').addEventListener('click', loadTemplate)
-  $('#btnSaveImportant').addEventListener('click', saveImportant)
   $('#btnRefreshMemory').addEventListener('click', loadMemory)
   $('#btnOpenMemory').addEventListener('click', () => openFolder('memory'))
   $('#btnOpenMemory2').addEventListener('click', () => openFolder('memory'))

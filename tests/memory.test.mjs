@@ -108,6 +108,30 @@ test('daily finalize merges summaries and free log, then deletes them', async ()
   }
 })
 
+test('important memory compresses itself only when the threshold is exceeded', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-important-'))
+  try {
+    const cfg = makeConfig(root)
+    cfg.memory.importantCompressAtChars = 500
+    cfg.memory.importantMaxChars = 7000
+    const p = ensureDataDirs(cfg)
+    fs.writeFileSync(p.important, '# 重要信息记忆\n\n' + '主人喜欢白米饭。'.repeat(100))
+    const store = new MemoryStore({ getConfig: () => cfg, llm: fakeLLM(), log: () => {} })
+    const small = await store.compressImportantIfNeeded()
+    assert.equal(small.compressed, true)
+    const compressed = readText(p.important, '')
+    assert.ok(compressed.length <= 500, 'compressed memory fits the configured threshold')
+    assert.match(compressed, /重要信息记忆/)
+
+    const before = compressed.length
+    const again = await store.compressImportantIfNeeded()
+    assert.equal(again.compressed, false)
+    assert.equal(readText(p.important, '').length, before)
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
 test('consolidateDaily compresses only dailies older than the threshold', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-consolidate-'))
   try {
