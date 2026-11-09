@@ -4,9 +4,9 @@
 
 ## 爬墙 4帧（2026-11-04）
 
-maid 已有专用 `climb/left/01-04.png`、`climb/right/01-04.png`。每帧 180ms，`01→02→03→04→01` 直接循环，不做 alpha 淡化；只在 `climb-left/right` 时使用，其他动作仍走原 sprite/12帧逻辑。
+maid 和 knit 都有专用 `climb/left/01-04.png`、`climb/right/01-04.png`。每帧 180ms，`01→02→03→04→01` 直接循环，不做 alpha 淡化；只在 `climb-left/right` 时使用，其他动作仍走原 sprite/12帧逻辑。
 
-右侧当前是**左侧临时水平镜像**：maid 的侧边蝴蝶结等不对称细节会翻转，不是最终美术。knit/winter 没有 `climb` 配置时回退旧 `views.left/right` 程序化攀爬。窗口贴墙位置由角色可见轮廓的 `wallInset` 计算，主进程负责自动向上移动。
+右侧当前是**左侧临时水平镜像**：maid 和 knit 的侧边蝴蝶结等不对称细节会翻转，不是最终美术。winter 没有 `climb` 配置，回退旧 `views.left/right` 程序化攀爬。窗口贴墙位置由角色可见轮廓的 `wallInset` 计算，主进程负责自动向上移动。
 
 ## Winter 12帧运行时（2026-11-03）
 
