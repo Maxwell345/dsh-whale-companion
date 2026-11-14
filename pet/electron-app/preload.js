@@ -13,5 +13,6 @@ contextBridge.exposeInMainWorld('whaleShell', {
   onClimb: (callback) => {
     ipcRenderer.on('whale:climb', (_event, side) => callback(side))
   },
+  focus: () => ipcRenderer.send('whale:focus'),
   close: () => ipcRenderer.send('whale:close'),
 })

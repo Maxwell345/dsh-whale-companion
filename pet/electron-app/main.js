@@ -293,6 +293,15 @@ ipcMain.handle('whale:set-position', (_event, pos) => {
   return win.getBounds()
 })
 
+ipcMain.on('whale:focus', () => {
+  if (!win || win.isDestroyed()) return
+  try {
+    if (win.isMinimized()) win.restore()
+    win.show()
+    win.focus()
+  } catch {}
+})
+
 ipcMain.on('whale:close', () => {
   closing = true
   if (win && !win.isDestroyed()) win.close()

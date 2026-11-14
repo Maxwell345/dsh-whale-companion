@@ -194,6 +194,8 @@
   }
 
   async function openChatPanel() {
+    if (shell?.focus) shell.focus()
+    else { try { window.focus() } catch {} }
     if (document.body.classList.contains('chat-open')) return
     document.body.classList.add('chat-open')
     chatDock.hidden = false
