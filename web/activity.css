@@ -25,3 +25,18 @@ body.activity-body {
 }
 .act-loading { color: #8995ab; font-size: 13px; }
 .act-foot { padding: 8px 16px; border-top: 1px solid rgba(255,255,255,.08); color: #8995ab; font-size: 11.5px; }
+
+.draw-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.draw-stage {
+  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: 14px; background: #f7ead2; overflow: hidden;
+}
+.draw-svg { width: 100%; height: 100%; display: block; padding: 10px; }
+.draw-pen { fill: #ffb35c; stroke: #fff; stroke-width: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
+.draw-bar { display: flex; align-items: center; gap: 12px; min-height: 32px; }
+.draw-progress {
+  flex: 1; height: 5px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden;
+}
+.draw-progress i { display: block; width: 0; height: 100%; background: #8fd0ff; transition: width .12s linear; }
+.draw-label { color: #8995ab; font-size: 11.5px; min-width: 76px; text-align: right; }
+.draw-bar .btn { flex: 0 0 auto; }

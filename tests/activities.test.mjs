@@ -56,6 +56,33 @@ test('game-writing and game-playing activities are removed', () => {
   }
 })
 
+test('draw saves an ordered plan sidecar and counts only image works', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-draw-plan-'))
+  try {
+    const s = makeService(root)
+    s.llm.call = async () => ({
+      text: JSON.stringify({
+        viewBox: '0 0 512 512',
+        steps: [
+          { type: 'stroke', d: 'M 40 40 C 80 10 120 10 160 40', color: '#253b66', width: 3, duration: 0.3 },
+          { type: 'fill', d: 'M 40 40 L 160 40 L 160 120 Z', fill: '#f7ead2', duration: 0.8, seed: [90, 70] },
+        ],
+      }),
+    })
+    const r = await s.draw()
+    assert.equal(r.ok, true)
+    assert.ok(fs.existsSync(r.file))
+    assert.ok(fs.existsSync(r.planFile))
+    const plan = JSON.parse(fs.readFileSync(r.planFile, 'utf8'))
+    assert.equal(plan.steps.length, 2)
+    assert.equal(s.status().artCount, 1)
+    assert.equal(s.listWorks().art.length, 1)
+    assert.ok(!s.listWorks().art.some((x) => x.name.endsWith('.draw.json')))
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
 test('clean only removes old art and never books', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whale-clean-'))
   try {

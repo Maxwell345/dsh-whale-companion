@@ -101,11 +101,11 @@ notepad "%USERPROFILE%\.dsh\profiles\desktop\package.json"
 「高级 → 模型」：
 
 - Base URL：`https://api.deepseek.com`
-- 模型：`deepseek-chat`
+- 模型：`deepseek-flash`（固定，不需要修改）
 - API Key：
   - 留空：插件会尝试读 `~/.dsh/.credentials.yaml` 里的 `sk-...`，或环境变量 `DEEPSEEK_API_KEY`；
   - 也可以自己填一个 DeepSeek 开放平台的 key。
-- 上下文窗口：默认 `64000`；如果你用的模型只有 32k，改成 `32000`。
+- 上下文窗口：默认 `64000`。
 - 点「测试连接」，看到模型回复就 OK。
 
 ### 2.3 作息
