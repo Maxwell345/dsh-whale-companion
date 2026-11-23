@@ -34,6 +34,22 @@ test('draw plans reject scripts, external references and invalid colors', () => 
   assert.throws(() => parseDrawPlan(JSON.stringify({ steps: [] })))
 })
 
+test('draw plans accept up to 600 steps and reject 601', () => {
+  const many = {
+    steps: Array.from({ length: 600 }, (_, i) => ({
+      type: 'stroke',
+      d: `M ${i % 20} ${i % 20} L ${i % 20 + 1} ${i % 20 + 1}`,
+      color: '#253b66',
+      duration: 0.1,
+    })),
+  }
+  const plan = parseDrawPlan(JSON.stringify(many), { maxBytes: 262144 })
+  assert.equal(plan.steps.length, 600)
+  assert.throws(() => parseDrawPlan(JSON.stringify({
+    steps: [...many.steps, many.steps[0]],
+  }), { maxBytes: 262144 }))
+})
+
 test('deepseek-flash is the fixed model even for old saved configs', () => {
   const old = {
     ...DEFAULT_CONFIG,

@@ -31,7 +31,7 @@ test('applyIncoming clamps dangerous values and rejects impossible times', () =>
   assert.ok(next.llm.maxTokens <= 8192)
   assert.ok(next.llm.temperature <= 2)
   assert.equal(next.qq, undefined)
-  assert.ok(next.free.maxCodeBytes <= 20480)
+  assert.ok(next.free.maxCodeBytes <= 262144)
 
   assert.throws(() => applyIncoming(DEFAULT_CONFIG, { schedule: { wake: '25:00', sleep: '07:00' } }), /作息/)
 })

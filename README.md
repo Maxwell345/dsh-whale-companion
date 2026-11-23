@@ -225,7 +225,7 @@ powershell -ExecutionPolicy Bypass -File tools/install-electron.ps1
 
 ## 自由活动的硬约束
 
-- SVG 画 ≤ 20KB（`free.maxCodeBytes`，上限写死 20480）。
+- 绘画计划 ≤ 240KB（`free.maxCodeBytes`，上限 262144）；最多 600 个 stroke/fill 步骤。
 - 画画现在先生成 `.draw.json` 绘画计划，再生成 `.svg` 成图；活动页会按计划逐笔勾线、逐块上色。
 - 旧版没有 `.draw.json` 的 SVG 仍然可以直接看，只是不播放绘画过程。
 - 写游戏和玩游戏功能已删除：不再生成代码、不再启动 Python/HTML、不再有游戏时长。
