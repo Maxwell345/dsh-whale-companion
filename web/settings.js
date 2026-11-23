@@ -154,9 +154,25 @@
       const r = await api('/activities/status')
       const w = r.works || {}
       const lines = []
-      for (const f of (w.art || []).slice(0, 12)) lines.push(`<div class="item"><span class="pill">画</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
-      for (const f of (w.books || []).slice(0, 12)) lines.push(`<div class="item"><span class="pill">书</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
+      for (const f of (w.art || []).slice(0, 20)) {
+        const action = f.hasPlan ? '查看绘画过程' : '查看静态图'
+        lines.push(`<div class="item"><span class="pill">画</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small><button class="btn ghost works-open" type="button" data-open-art="${esc(f.path)}">${action}</button></div>`)
+      }
+      for (const f of (w.books || []).slice(0, 20)) lines.push(`<div class="item"><span class="pill">书</span><span class="grow">${esc(f.name)}</span><small>${fmtBytes(f.bytes)}</small></div>`)
       $('#worksList').innerHTML = lines.join('') || '<p class="hint">还没有作品。</p>'
+      for (const b of $$('#worksList [data-open-art]')) {
+        b.addEventListener('click', async () => {
+          b.disabled = true
+          try {
+            await api('/activities/open', { method: 'POST', body: { file: b.dataset.openArt } })
+            toast('已打开画作', 'ok')
+          } catch (e) {
+            toast(e.message, 'err')
+          } finally {
+            b.disabled = false
+          }
+        })
+      }
     } catch {}
   }
 
@@ -304,6 +320,7 @@
       const r = await api('/activities/run', { method: 'POST', body: { kind } })
       toast(r.ok ? (r.say || '做完啦') : (r.error || '没做成'), r.ok ? 'ok' : 'err')
       await refreshStatus()
+      await refreshWorks()
     } catch (e) { toast(e.message, 'err') } finally { b.disabled = false }
   }))
 

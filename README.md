@@ -231,6 +231,7 @@ powershell -ExecutionPolicy Bypass -File tools/install-electron.ps1
 - 写游戏和玩游戏功能已删除：不再生成代码、不再启动 Python/HTML、不再有游戏时长。
 - 书目录只读，不删；整理只删 `自由活动/画` 里超过保留天数的文件。
 - 每完成一件事，追加到当天的 `自由活动日志`；睡觉时合成全天总结后删除。
+- 设置页「自由活动 → 她的作品」每幅画都有查看按钮：有 `.draw.json` 时播放逐笔绘画过程，没有时显示静态 SVG。
 
 ---
 

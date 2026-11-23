@@ -181,6 +181,7 @@ pre.preview {
 }
 .item .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .item small { color: var(--muted); }
+.item .works-open { flex: 0 0 auto; padding: 4px 8px; font-size: 11px; }
 
 @media (max-width: 720px) {
   .top { padding: 12px 14px; }

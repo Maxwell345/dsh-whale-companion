@@ -77,6 +77,7 @@ test('draw saves an ordered plan sidecar and counts only image works', async () 
     assert.equal(plan.steps.length, 2)
     assert.equal(s.status().artCount, 1)
     assert.equal(s.listWorks().art.length, 1)
+    assert.equal(s.listWorks().art[0].hasPlan, true)
     assert.ok(!s.listWorks().art.some((x) => x.name.endsWith('.draw.json')))
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
